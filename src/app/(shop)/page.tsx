@@ -1,10 +1,15 @@
-import {titleFont} from "@/config/font";
+import {ProductGrid} from "@/components";
+import Title from "@/components/ui/title/Title";
+import {initialData} from "@/seed/seed";
+
+const products = initialData.products;
 
 export default function Home() {
 	return (
-		<div>
-			<h1>Teslo shop</h1>
-			<h1 className={`${titleFont.className}`}>Teslo shop</h1>
-		</div>
+		<>
+			<Title title="Tienda" subtitle="Todos los productos" className="mb-2" />
+
+			<ProductGrid products={products} />
+		</>
 	);
 }
