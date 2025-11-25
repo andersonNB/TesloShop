@@ -1,3 +1,4 @@
+import {QuantitySelector, SizeSelector} from "@/components";
 import {titleFont} from "@/config/font";
 import {initialData} from "@/seed/seed";
 import {notFound} from "next/navigation";
@@ -22,7 +23,7 @@ const ProductPage = async ({params}: Props) => {
 			<div className="col-span-1 md:col-span-2 bg-green-400 ">slideshow</div>
 
 			{/* Details */}
-			<div className="bg-pink-300 col-span-1 px-5 ">
+			<div className="col-span-1 px-5 ">
 				<h1 className={`${titleFont.className} antialiased font-bold text-xl `}>
 					{product.title}
 				</h1>
@@ -30,7 +31,12 @@ const ProductPage = async ({params}: Props) => {
 
 				{/* Selector de tallas */}
 
+				<SizeSelector
+					selectedSize={product.sizes[0]}
+					availableSizes={product.sizes}
+				/>
 				{/* Selector de cantidad*/}
+				<QuantitySelector quantity={0} />
 
 				{/* Button */}
 				<button className="btn-primary my-5 ">Agregar al carrito</button>
