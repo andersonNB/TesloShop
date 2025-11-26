@@ -24,6 +24,7 @@ export const QuantitySelector = ({quantity}: Props) => {
 		<div className="flex">
 			<button onClick={() => onQuantityChanged(-1)}>
 				<IoRemoveCircleOutline size={30} />
+				qwerty
 			</button>
 			<input
 				value={count}
