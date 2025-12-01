@@ -23,6 +23,7 @@ export const ProductSlideshow = ({images, title, className}: Props) => {
 	const [thumbsSwiper, setThumbsSwiper] = useState<SwiperObject>();
 	return (
 		<div className={className}>
+			Swiper princiapl
 			<Swiper
 				style={
 					{
