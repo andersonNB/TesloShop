@@ -25,30 +25,61 @@ const CardPage = () => {
 						<Link href="/" className="underline mb-5">
 							Continúa comprando
 						</Link>
+
+						{/* Items */}
+						{productsInCart.map((product) => (
+							<div key={product.slug} className="flex mb-5 ">
+								<Image
+									src={`/products/${product.images[0]}`}
+									width={100}
+									height={100}
+									alt={product.title}
+									className="mr-5 rounded"
+									style={{
+										width: "100px",
+										height: "100px",
+									}}
+								/>
+
+								<div>
+									<p>{product.title}</p>
+									<p>{product.price}</p>
+									<QuantitySelector quantity={product.inStock} />
+
+									<button className="flex items-center justify-center gap-2 underline mt-3">
+										<CiTrash /> Remover
+									</button>
+								</div>
+							</div>
+						))}
 					</div>
 
-					{/* Items */}
-					{productsInCart.map((product) => (
-						<div key={product.slug} className="flex">
-							<Image
-								src={`/products/${product.images[0]}`}
-								width={100}
-								height={100}
-								alt={product.title}
-								className="mr-5 rounded"
-							/>
+					{/* Checkout - resumen de la compra */}
+					<div className="bg-white rounded-xl shadow-xl p-7 ">
+						<h2 className="text-2xl mb-2">Resumen de orden</h2>
+						<div className="grid grid-cols-2">
+							<span>No. Productos</span>
+							<span className="text-right">3 artículos </span>
 
-							<div>
-								<p>{product.title}</p>
-								<p>{product.price}</p>
-								<QuantitySelector quantity={product.inStock} />
+							<span>Subtotal</span>
+							<span className="text-right">$100</span>
 
-								<button className="flex items-center justify-center gap-2 underline mt-3">
-									<CiTrash /> Remover
-								</button>
-							</div>
+							<span>Impuestos (15%) </span>
+							<span className="text-right">$100</span>
+
+							<span className="mt-5 text-2xl">Total:</span>
+							<span className="mt-5 text-2xl text-right">$100</span>
 						</div>
-					))}
+
+						<div className="mt-5 mb-2 w-full">
+							<Link
+								className="flex btn-primary justify-center "
+								href={"/checkout/address"}
+							>
+								Checkout
+							</Link>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
