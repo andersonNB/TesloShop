@@ -25,7 +25,7 @@ const CardPage = () => {
 						<Link href="/" className="underline mb-5">
 							Continúa comprando
 						</Link>
-						{/* Items */}qwerty
+						{/* Items */}
 						{productsInCart.map((product) => (
 							<div key={product.slug} className="flex mb-5 ">
 								<Image
