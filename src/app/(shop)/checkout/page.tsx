@@ -1,8 +1,7 @@
-import Title from "@/components/ui/title/Title";
+import { Title } from "@/components";
 import { initialData } from "@/seed/seed";
 import Image from "next/image";
 import Link from "next/link";
-import { CiTrash } from "react-icons/ci";
 
 const productsInCart = [
 	initialData.products[0],
@@ -12,8 +11,8 @@ const productsInCart = [
 
 const CheckoutPage = () => {
 	return (
-		<div className="flex justify-center items-center mb-72 px-10 sm:px-0 bg-amber-100">
-			<div className="flex flex-col w-[1000px] bg-amber-200">
+		<div className="flex justify-center items-start min-h-full py-0 px-10 sm:px-0">
+			<div className="flex flex-col w-full max-w-[1000px]">
 				<Title title="Verificar orden" />
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-10">

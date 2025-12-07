@@ -1,6 +1,5 @@
-import {ProductGrid} from "@/components";
-import Title from "@/components/ui/title/Title";
-import {initialData} from "@/seed/seed";
+import { ProductGrid, Title } from "@/components";
+import { initialData } from "@/seed/seed";
 
 const products = initialData.products;
 

@@ -1,10 +1,10 @@
-import Title from "@/components/ui/title/Title";
+import { Title } from "@/components";
 import Link from "next/link";
 
 export default function AddressPage() {
 	return (
-		<div className="flex flex-col sm:justify-center sm:items-center mb-72 px-10 sm:px-0">
-			<div className="w-full  xl:w-[1000px] flex flex-col justify-center text-left">
+		<div className="flex justify-center items-start min-h-full py-0 px-10 sm:px-0">
+			<div className="w-full max-w-[1000px] flex flex-col justify-center text-left">
 				<Title title="Dirección" subtitle="Dirección de entrega" />
 
 				<div className="grid grid-cols-1 gap-2 sm:gap-5 sm:grid-cols-2">

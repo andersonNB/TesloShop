@@ -1,6 +1,5 @@
-import {ProductGrid} from "@/components";
-import Title from "@/components/ui/title/Title";
-import {initialData, Category} from "@/seed/seed";
+import { ProductGrid, Title } from "@/components";
+import { initialData, Category } from "@/seed/seed";
 
 interface Props {
 	params: Promise<{
@@ -10,8 +9,8 @@ interface Props {
 
 const products = initialData.products;
 
-const CategoryPage = async ({params}: Props) => {
-	const {id} = await params;
+const CategoryPage = async ({ params }: Props) => {
+	const { id } = await params;
 
 	// if (id === "kid") return notFound();
 
