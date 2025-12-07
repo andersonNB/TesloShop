@@ -39,7 +39,7 @@ const CardPage = () => {
 										height: "100px",
 									}}
 								/>
-
+								wadsadad
 								<div>
 									<p>{product.title}</p>
 									<p>{product.price}</p>
