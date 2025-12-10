@@ -2,7 +2,7 @@ import { QuantitySelector, Title } from "@/components";
 import { initialData } from "@/seed/seed";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import { redirect } from "next/navigation";
 import { CiTrash } from "react-icons/ci";
 
 const productsInCart = [
@@ -12,6 +12,9 @@ const productsInCart = [
 ];
 
 const CardPage = () => {
+
+	if (productsInCart.length === 0) return redirect("/empty")
+
 	return (
 		<div className="flex justify-center items-start min-h-full py-0 px-10 sm:px-0">
 			<div className="flex flex-col w-full max-w-[1000px]">
@@ -53,7 +56,7 @@ const CardPage = () => {
 					</div>
 
 					{/* Checkout - resumen de la compra */}
-					<div className="bg-white rounded-xl shadow-xl p-7 ">
+					<div className="bg-white rounded-xl shadow-xl p-7 h-fit ">
 						<h2 className="text-2xl mb-2">Resumen de orden</h2>
 						<div className="grid grid-cols-2">
 							<span>No. Productos</span>
