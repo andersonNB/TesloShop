@@ -9,4 +9,3 @@
 5. Correr la app `npm run dev`
 
 ## Correr en prod
-no comments.
