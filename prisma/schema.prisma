@@ -12,3 +12,45 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Size {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+  XXXL
+}
+
+enum Gender {
+  men
+  women
+  kid
+  unisex
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+
+  @@index([name])
+}
+
+// De esta manera establecemos la relacion entre Category y Product
+model Product {
+  id          String   @id @default(uuid())
+  description String?
+  inStock     Int
+  price       Float    @default(0)
+  size        Size[]   @default([])
+  slug        String   @unique
+  tags        String[] @default([])
+  title       String
+  gender      Gender
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+
+  @@index([gender, categoryId])
+}
