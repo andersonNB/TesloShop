@@ -6,8 +6,7 @@
 
 //Los modelos en prisma son como las tablas en la base de datos
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
