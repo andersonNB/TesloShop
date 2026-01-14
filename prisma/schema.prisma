@@ -45,7 +45,7 @@ model Product {
   description String?
   inStock     Int
   price       Float          @default(0)
-  size        Size[]         @default([])
+  sizes       Size[]         @default([])
   slug        String         @unique
   tags        String[]       @default([])
   title       String
