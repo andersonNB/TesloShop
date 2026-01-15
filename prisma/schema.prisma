@@ -42,7 +42,7 @@ model Category {
 // De esta manera establecemos la relacion entre Category y Product
 model Product {
   id          String         @id @default(uuid())
-  description String?
+  description String
   inStock     Int
   price       Float          @default(0)
   sizes       Size[]         @default([])

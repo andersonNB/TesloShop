@@ -1,5 +1,5 @@
 export interface Product {
-	//agregar id
+	id: string
 	description: string;
 	images: string[];
 	inStock: number;
@@ -8,7 +8,7 @@ export interface Product {
 	slug: string;
 	tags: string[];
 	title: string;
-	type: ValidTypes;
+	// type: ValidTypes; llega el categoriId y la interface pide es los ValidTypes
 	gender: "men" | "women" | "kid" | "unisex";
 }
 
