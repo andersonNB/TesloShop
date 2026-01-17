@@ -1,5 +1,5 @@
 import { getPaginatedProductsWithImages } from "@/actions";
-import { Pagination, ProductGrid, Title } from "@/components";
+import { ErrorComponent, Pagination, ProductGrid, Title } from "@/components";
 import { redirect } from "next/navigation";
 
 
@@ -11,11 +11,17 @@ interface Props {
 
 export default async function Home({ searchParams }: Props) {
 
-	const page = await searchParams
-	const productsTemp = await getPaginatedProductsWithImages({ page: Number(page.page) })
+	const pageSearch = await searchParams
+	const { products, totalPages, ok } = await getPaginatedProductsWithImages({ page: Number(pageSearch.page) })
 
+	if (!ok) {
+		// Podrías retornar un componente de error personalizado aquí
+		return (
+			<ErrorComponent />
+		)
+	}
 
-	if (productsTemp.products.length === 0) {
+	if (products.length === 0) {
 		redirect("/")
 	}
 
@@ -23,9 +29,9 @@ export default async function Home({ searchParams }: Props) {
 		<>
 			<Title title="Tienda" subtitle="Todos los productos" className="mb-2" />
 
-			<ProductGrid products={productsTemp?.products ?? []} />
+			<ProductGrid products={products} />
 
-			<Pagination totalPages={productsTemp.totalPages ?? 1} />
+			<Pagination totalPages={totalPages} />
 		</>
 	);
 }

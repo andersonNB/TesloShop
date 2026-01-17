@@ -1,3 +1,4 @@
+export * from './product/error-component/ErrorComponent';
 export * from './product/quantity-selector/QuantitySelector';
 export * from './product/size-selector/SizeSelector';
 export * from './product/slideshow/ProductMobileSlideShow';

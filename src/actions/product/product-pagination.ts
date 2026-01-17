@@ -27,28 +27,28 @@ export const getPaginatedProductsWithImages = async ({ page = 1, take = 12 }: Pa
 
     try {
 
-        //1. Obtener los productos
-        const products = await prisma.product.findMany({
-            take,
-            skip: (page - 1) * take,
-            include: {
-                images: {
-                    take: 2,
-                    select: {
-                        url: true
+        // 1. Obtener los productos e imágenes en paralelo (o secuencial, pero con manejo de errores)
+        const [products, totalCount] = await Promise.all([
+            prisma.product.findMany({
+                take,
+                skip: (page - 1) * take,
+                include: {
+                    images: {
+                        take: 2,
+                        select: {
+                            url: true
+                        }
                     }
                 }
-            }
-        })
+            }),
+            prisma.product.count({})
+        ]);
 
-        console.log("serverActions")
-
-        //2. Obtener el total de elementos
-        const totalCount = await prisma.product.count({})
-        const totalPages = Math.ceil(totalCount / take)
+        const totalPages = Math.ceil(totalCount / take);
 
         return {
-            currerntPage: page,
+            ok: true,
+            currentPage: page,
             totalPages,
             products: products.map(product => ({
                 ...product,
@@ -57,8 +57,14 @@ export const getPaginatedProductsWithImages = async ({ page = 1, take = 12 }: Pa
         }
 
     } catch (error) {
-        console.error(error)
-        throw new Error("No se pudo cargar los productos")
+        console.error(error);
+        return {
+            ok: false,
+            message: "No se pudieron cargar los productos",
+            products: [],
+            currentPage: 1,
+            totalPages: 1,
+        }
     }
 
 }
