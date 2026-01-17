@@ -7,7 +7,7 @@ interface Props {
 	}>;
 }
 
-const products = initialData.products;
+const products = initialData.products.map(p => ({ ...p, id: p.slug }));
 
 const CategoryPage = async ({ params }: Props) => {
 	const { id } = await params;
