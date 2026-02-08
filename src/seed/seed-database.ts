@@ -53,13 +53,19 @@ async function main() {
     //     }
     // })
 
-    products.forEach(async (product) => {
+    for (const product of products) {
         const { type, images, ...restProduct } = product
+
+        const categoryId = categoriesMap[type.toLowerCase()];
+
+        if (!categoryId) {
+            continue;
+        }
 
         const dbProduct = await prisma.product.create({
             data: {
                 ...restProduct,
-                categoryId: categoriesMap[type.toLowerCase()]
+                categoryId: categoryId
             }
         })
 
@@ -72,7 +78,7 @@ async function main() {
         await prisma.productImage.createMany({
             data: imagesData
         })
-    })
+    }
 
     console.log("Semilla ejecutada correctamente")
 }

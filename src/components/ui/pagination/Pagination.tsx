@@ -1,7 +1,7 @@
 "use client"
-import Link from 'next/link'
-import { redirect, usePathname, useSearchParams } from 'next/navigation'
-import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5'
+import Link from 'next/link';
+import { redirect, usePathname, useSearchParams } from 'next/navigation';
+import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 import clsx from 'clsx';
 import { generatePaginationNumbers } from '@/utils';
 
