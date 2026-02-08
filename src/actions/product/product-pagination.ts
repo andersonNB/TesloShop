@@ -1,11 +1,13 @@
 'use server'
 
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma";
+import { Category } from "@/seed/seed";
 
 
 interface PaginationOptions {
     page?: number;
     take?: number
+    gender?: Category
 }
 
 
@@ -19,7 +21,7 @@ interface PaginationOptions {
  * @returns {Promise<{ products: any[] }>} Un objeto que contiene la lista de productos transformados.
  * @throws {Error} Si ocurre un error al cargar los productos de la base de datos.
  */
-export const getPaginatedProductsWithImages = async ({ page = 1, take = 12 }: PaginationOptions) => {
+export const getPaginatedProductsWithImages = async ({ page = 1, take = 12, gender }: PaginationOptions) => {
 
     if (isNaN(Number(page))) page = 1;
     if (page < 1) page = 1;
@@ -39,10 +41,19 @@ export const getPaginatedProductsWithImages = async ({ page = 1, take = 12 }: Pa
                             url: true
                         }
                     }
+                },
+                where: {
+                    gender
                 }
             }),
-            prisma.product.count({})
+            prisma.product.count({
+                where: {
+                    gender: gender
+                }
+            })
         ]);
+
+        console.log({ products, totalCount })
 
         const totalPages = Math.ceil(totalCount / take);
 
