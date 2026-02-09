@@ -4,6 +4,7 @@ export * from './product/size-selector/SizeSelector';
 export * from './product/slideshow/ProductMobileSlideShow';
 export * from './product/slideshow/ProductSlideshow';
 export * from './product/stock-label/StockLabel';
+export * from './product/stock-skeleton/StockSkeleton';
 export * from './products/product-grid/ProductGrid';
 export * from './products/product-grid/ProductGridItem';
 export * from './sidebar/SidebarItems';
