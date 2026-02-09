@@ -1,6 +1,6 @@
 export const revalidate = 60 * 60 * 24 * 7 // 1 week
 import { getProductBySlug } from "@/actions";
-import { ProductMobileSlideShow, ProductSlideshow, QuantitySelector, SizeSelector } from "@/components";
+import { ProductMobileSlideShow, ProductSlideshow, QuantitySelector, SizeSelector, StockLabel } from "@/components";
 import { titleFont } from "@/config/font";
 import { notFound } from "next/navigation";
 
@@ -35,6 +35,7 @@ const ProductPage = async ({ params }: Props) => {
 
 			{/* Details */}
 			<div className="col-span-1 px-5 ">
+				<StockLabel slug={product.slug ?? ""} />
 				<h1 className={`${titleFont.className} antialiased font-bold text-xl `}>
 					{product.title}
 				</h1>
