@@ -20,7 +20,7 @@ export const StockLabel = ({ slug }: Props) => {
     }, [slug])
 
     return (
-        <h1 className={`${titleFont.className} flex items-center gap-2 antialiased font-bold text-xl `}>
+        <h1 className={`${titleFont.className} flex items-center gap-2 antialiased font-bold text-md `}>
             Stock: {stock === null ? <StockSkeleton /> : stock}
         </h1>
     )

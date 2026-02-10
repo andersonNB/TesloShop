@@ -2,6 +2,7 @@ export const revalidate = 60 * 60 * 24 * 7 // 1 week
 import { getProductBySlug } from "@/actions";
 import { ProductMobileSlideShow, ProductSlideshow, QuantitySelector, SizeSelector, StockLabel } from "@/components";
 import { titleFont } from "@/config/font";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 interface Props {
@@ -10,6 +11,23 @@ interface Props {
 	};
 }
 
+export async function generateMetadata(
+	{ params }: Props,
+): Promise<Metadata> {
+	const slug = (await params).slug
+
+	const product = await getProductBySlug(slug)
+
+	return {
+		title: product?.title,
+		description: product?.description,
+		openGraph: {
+			title: product?.title,
+			description: product?.description,
+			images: [`/products/${product?.images[1]}`]
+		}
+	}
+}
 const ProductPage = async ({ params }: Props) => {
 	const { slug } = await params;
 	// const product = initialData.products.find((product) => product.slug === slug);
