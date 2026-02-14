@@ -30,7 +30,6 @@ const CategoryPage = async ({ params }: Props) => {
 	const { products, totalPages, ok } = await getPaginatedProductsWithImages({ gender })
 
 	// if (id === "kid") return notFound(); no reaction
-
 	if (!ok) {
 		return <ErrorComponent />
 	}
