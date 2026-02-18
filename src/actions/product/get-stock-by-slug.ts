@@ -31,6 +31,6 @@ export const getStockBySlug = async (slug: string) => {
 
     } catch (error) {
         console.error(error)
-        throw new Error("Error al obtener el stock por slug.")
+        throw new Error("Error al obtener el stock por slug")
     }
 }
