@@ -12,5 +12,14 @@ export interface Product {
 	gender: "men" | "women" | "kid" | "unisex";
 }
 
+export interface CartProduct {
+	id: string
+	slug: string
+	price: number
+	quantity: number
+	size: ValidSizes
+	image: string
+}
+
 export type ValidSizes = "XS" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL";
 export type ValidTypes = "shirts" | "pants" | "hoodies" | "hats";
