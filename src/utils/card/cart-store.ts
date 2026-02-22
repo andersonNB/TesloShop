@@ -25,7 +25,7 @@ export const useCartStore = create<State>()(
                 return;
             }
 
-            //2. El producto ya existe, actualizar la cantidad
+            //2. El producto ya existe, actualizar la cantidad.
             const updatedCartProducts = cart.map((item) => {
                 if (item.id === product.id && item.size === product.size) {
                     return {
