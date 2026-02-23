@@ -1,9 +1,10 @@
 "use client"
 import Link from 'next/link';
-import { redirect, usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 import clsx from 'clsx';
 import { generatePaginationNumbers } from '@/utils';
+import { useEffect } from 'react';
 
 
 interface Props {
@@ -14,13 +15,9 @@ export const Pagination = ({ totalPages }: Props) => {
 
     const searchParams = useSearchParams()
     const pathname = usePathname()
+    const router = useRouter()
     const pageNumber = Number(searchParams.get("page") ?? 1)
     const currentPage = isNaN(pageNumber) ? 1 : pageNumber
-
-
-    if (currentPage < 1) {
-        redirect(pathname)
-    }
 
     const allPages = generatePaginationNumbers(currentPage, totalPages);
 
@@ -43,6 +40,12 @@ export const Pagination = ({ totalPages }: Props) => {
         return `${pathname}?${params.toString()}`;
 
     }
+
+    useEffect(() => {
+        if (currentPage < 1) {
+            router.push(pathname)
+        }
+    }, [currentPage, pathname, router])
 
     return (
         <div className="flex justify-center text-center mt-10 mb-32">

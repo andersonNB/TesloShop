@@ -1,11 +1,25 @@
 "use client";
 import { titleFont } from "@/config/font";
 import { useUIStore } from "@/store";
+import { useCartStore } from "@/utils";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { IoCartOutline, IoSearchOutline } from "react-icons/io5";
 
 export const TopMenu = () => {
 	const { openSideMenu } = useUIStore((state) => state);
+	const totalItemsInCart = useCartStore(state => state.getTotalItems());
+
+	const [hydrated, setHydrated] = useState(false);
+	const hasMounted = useRef(false);
+
+	useEffect(() => {
+		if (!hasMounted.current) {
+			hasMounted.current = true;
+			queueMicrotask(() => setHydrated(true));
+		}
+	}, []);
+
 
 	return (
 		<nav className="flex px-5 py-0 justify-between items-center w-full sticky top-0 bg-white z-10 shadow-sm">
@@ -50,9 +64,13 @@ export const TopMenu = () => {
 
 				<Link href={"/cart"}>
 					<div className="relative">
-						<span className="absolute text-xs rounded-full px-1 font-bold -top-2 -right-2 bg-blue-700 text-white">
-							3
-						</span>
+						{
+							(hydrated && totalItemsInCart > 0) && (
+								<span className="absolute text-xs rounded-full px-1 font-bold -top-2 -right-2 bg-blue-700 text-white">
+									{totalItemsInCart}
+								</span>
+							)
+						}
 						<IoCartOutline className="w-5 h-5" />
 					</div>
 				</Link>

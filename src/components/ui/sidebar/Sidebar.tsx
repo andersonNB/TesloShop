@@ -1,6 +1,6 @@
 "use client";
-import {SidebarItem, SidebarItems} from "@/components/sidebar/SidebarItems";
-import {useUIStore} from "@/store";
+import { SidebarItem, SidebarItems } from "@/components/sidebar/SidebarItems";
+import { useUIStore } from "@/store";
 import clsx from "clsx";
 import {
 	IoCloseCircleOutline,
@@ -13,43 +13,46 @@ import {
 	IoTicketOutline,
 } from "react-icons/io5";
 
-const menuItemsSidebar: SidebarItem[] = [
-	{
-		text: "Perfil",
-		icon: <IoPersonOutline size={30} />,
-	},
-	{
-		text: "Ordenes",
-		icon: <IoTicketOutline size={30} />,
-	},
-	{
-		text: "Ingresar",
-		icon: <IoLogInOutline size={30} />,
-	},
-	{
-		text: "Salir",
-		icon: <IoLogOutOutline size={30} />,
-	},
-];
 
-const afterSeparationItems: SidebarItem[] = [
-	{
-		text: "Productos",
-		icon: <IoShirtOutline size={30} />,
-	},
-	{
-		text: "Ordenes",
-		icon: <IoTicketOutline size={30} />,
-	},
-	{
-		text: "Usuarios",
-		icon: <IoPeopleOutline size={30} />,
-	},
-];
 
 export const Sidebar = () => {
 	const isSideMenuOpen = useUIStore((state) => state.isSideMenuOpen);
 	const closeMenu = useUIStore((state) => state.closeSideMenu);
+
+
+	const menuItemsSidebar: SidebarItem[] = [
+		{
+			text: "Perfil",
+			icon: <IoPersonOutline size={30} />,
+		},
+		{
+			text: "Ordenes",
+			icon: <IoTicketOutline size={30} />,
+		},
+		{
+			text: "Ingresar",
+			icon: <IoLogInOutline size={30} />,
+		},
+		{
+			text: "Salir",
+			icon: <IoLogOutOutline size={30} />,
+		},
+	];
+
+	const afterSeparationItems: SidebarItem[] = [
+		{
+			text: "Productos",
+			icon: <IoShirtOutline size={30} />,
+		},
+		{
+			text: "Ordenes",
+			icon: <IoTicketOutline size={30} />,
+		},
+		{
+			text: "Usuarios",
+			icon: <IoPeopleOutline size={30} />,
+		},
+	];
 
 	return (
 		<div>

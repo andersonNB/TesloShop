@@ -1,9 +1,9 @@
 "use client";
 
-import {Swiper, SwiperSlide} from "swiper/react";
-import {useState} from "react";
-import {Swiper as SwiperObject} from "swiper";
-import {Autoplay, FreeMode, Navigation, Thumbs} from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { useState } from "react";
+import { Swiper as SwiperObject } from "swiper";
+import { Autoplay, FreeMode, Navigation, Thumbs } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -19,11 +19,11 @@ interface Props {
 	className?: string;
 }
 
-export const ProductSlideshow = ({images, title, className}: Props) => {
+export const ProductSlideshow = ({ images, title, className }: Props) => {
 	const [thumbsSwiper, setThumbsSwiper] = useState<SwiperObject>();
 	return (
 		<div className={className}>
-			Swiper princiapl
+			{/* Swiper principal */}
 			<Swiper
 				style={
 					{
@@ -36,7 +36,7 @@ export const ProductSlideshow = ({images, title, className}: Props) => {
 				autoplay={{
 					delay: 2500,
 				}}
-				thumbs={{swiper: thumbsSwiper}}
+				thumbs={{ swiper: thumbsSwiper }}
 				modules={[FreeMode, Navigation, Thumbs, Autoplay]}
 				className="mySwiper2"
 			>

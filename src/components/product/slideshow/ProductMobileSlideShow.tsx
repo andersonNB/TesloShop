@@ -20,7 +20,7 @@ export const ProductMobileSlideShow = ({ images, title, className }: Props) => {
 
 	return (
 		<div className={className}>
-			Swiper mobile
+			{/* Swiper mobile */}
 			<Swiper
 				style={{
 					width: "100vw",
