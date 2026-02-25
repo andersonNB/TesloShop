@@ -62,7 +62,7 @@ export const ProductsInCart = () => {
                     <QuantitySelector quantity={product.quantity} onQuantityChanged={(quantity) => onChangeQuantity(quantity, product)} />
 
                     <button className="flex items-center justify-center gap-2 underline mt-3 hover:cursor-pointer">
-                        <CiTrash /> Remover.
+                        <CiTrash /> Remover
                     </button>
                 </div>
             </div>
