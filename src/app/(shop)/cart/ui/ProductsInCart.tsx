@@ -12,7 +12,7 @@ import { CiTrash } from 'react-icons/ci'
 export const ProductsInCart = () => {
 
     const productsInCart = useCartStore(state => state.cart)
-    //TODO: Implementar la funcion de remover producto del carrito
+    //TODO: Implementar la funcion de remover producto del carrito.
     const updateProductQuantity = useCartStore(state => state.addProductToCart)
 
     const [hydrated, setHydrated] = useState(false);
