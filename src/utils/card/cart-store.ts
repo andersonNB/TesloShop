@@ -1,10 +1,11 @@
-import { CartProduct } from "@/interfaces";
+import { CartProduct, SummaryInformation } from "@/interfaces";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 interface State {
     cart: CartProduct[];
     getTotalItems: () => number
+    getSummaryInformation: () => SummaryInformation
     addProductToCart: (product: CartProduct) => void;
     sustractProductToCart: (product: CartProduct) => void;
     deleteProductToCart: (product: CartProduct) => void;
@@ -19,6 +20,19 @@ export const useCartStore = create<State>()(
             getTotalItems() {
                 const { cart } = get() //obtenemos el estado actual del carrito
                 return cart.reduce((total, item) => total + item.quantity, 0)
+            },
+            getSummaryInformation: () => {
+                const { cart } = get()
+
+                const subTotal = cart.reduce((subTotal, product) => (product.quantity * product.price + subTotal), 0)
+                const tax = subTotal * 0.15
+                const total = subTotal + tax
+
+                return {
+                    subTotal,
+                    tax,
+                    total
+                }
             },
             addProductToCart: (product: CartProduct) => {
                 const { cart } = get()
@@ -78,10 +92,8 @@ export const useCartStore = create<State>()(
                 const { cart } = get()
 
                 const updatedCartProducts = cart.filter(item => {
-                    return item.id !== product.id && item.size !== product.size
+                    return item.id !== product.id || item.size !== product.size
                 })
-
-                console.log(updatedCartProducts)
                 set({
                     cart: updatedCartProducts
                 })

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { IoCartOutline } from "react-icons/io5";
 
 const EmptyPage = () => {
-	return <div className="flex justify-center items-center min-h-full py-0 px-10 sm:px-0" >
+	return <div className="flex justify-center items-center h-[calc(100vh-100px)] sm:px-0" >
 		<IoCartOutline size={80} className="mx-5" />
 
 		<div className="flex flex-col items-center">

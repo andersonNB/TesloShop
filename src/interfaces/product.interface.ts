@@ -22,5 +22,7 @@ export interface CartProduct {
 	image: string
 }
 
+export interface SummaryInformation { subTotal: number, tax: number, total: number }
+
 export type ValidSizes = "XS" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL";
 export type ValidTypes = "shirts" | "pants" | "hoodies" | "hats";
