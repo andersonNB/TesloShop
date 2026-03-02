@@ -12,14 +12,13 @@ import { CiTrash } from 'react-icons/ci'
 export const ProductsInCart = () => {
 
     const productsInCart = useCartStore(state => state.cart)
-    //TODO: Implementar la funcion de remover producto del carrito
-    const updateProductQuantity = useCartStore(state => state.addProductToCart)
+    const updateProductQuantity = useCartStore(state => state.sustractProductToCart)
+    const deleteProductToCart = useCartStore(state => state.deleteProductToCart)
 
     const [hydrated, setHydrated] = useState(false);
     const hasMounted = useRef(false);
 
     const onChangeQuantity = (quantity: number, product: CartProduct) => {
-        console.log("onChangeQuantity: ", quantity)
 
         const productUpdated = {
             ...product,
@@ -62,7 +61,9 @@ export const ProductsInCart = () => {
                     <p>{product.price}</p>
                     <QuantitySelector quantity={product.quantity} onQuantityChanged={(quantity) => onChangeQuantity(quantity, product)} />
 
-                    <button className="flex items-center justify-center gap-2 underline mt-3 hover:cursor-pointer">
+                    <button className="flex items-center justify-center gap-2 underline mt-3 hover:cursor-pointer"
+                        onClick={() => deleteProductToCart(product)}
+                    >
                         <CiTrash /> Remover
                     </button>
                 </div>

@@ -6,6 +6,9 @@ interface State {
     cart: CartProduct[];
     getTotalItems: () => number
     addProductToCart: (product: CartProduct) => void;
+    sustractProductToCart: (product: CartProduct) => void;
+    deleteProductToCart: (product: CartProduct) => void;
+
 }
 
 export const useCartStore = create<State>()(
@@ -44,6 +47,41 @@ export const useCartStore = create<State>()(
                     return item;
                 })
 
+                set({
+                    cart: updatedCartProducts
+                })
+            },
+            sustractProductToCart: (product: CartProduct) => {
+                const { cart } = get()
+
+                const productInCart = cart.some(item => item.id === product.id && item.size === product.size)
+
+                if (!productInCart) {
+                    return []
+                }
+
+                const updatedCartProducts = cart.map((item) => {
+                    if (item.id === product.id && item.size === product.size) {
+                        return {
+                            ...item,
+                            quantity: product.quantity
+                        }
+                    }
+                    return item
+                })
+
+                set({
+                    cart: updatedCartProducts
+                })
+            },
+            deleteProductToCart: (product: CartProduct) => {
+                const { cart } = get()
+
+                const updatedCartProducts = cart.filter(item => {
+                    return item.id !== product.id && item.size !== product.size
+                })
+
+                console.log(updatedCartProducts)
                 set({
                     cart: updatedCartProducts
                 })
