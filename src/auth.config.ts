@@ -20,7 +20,7 @@ export const authConfig = {
 
                 const { email, password } = parsedCredentials.data
 
-                console.log("auth.config", { email, password })
+                console.log("auth.config ", { email, password })
 
                 //buscar el correo
 
