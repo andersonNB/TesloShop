@@ -9,10 +9,16 @@ async function main() {
     await Promise.all([
         prisma.productImage.deleteMany(),
         prisma.product.deleteMany(),
-        prisma.category.deleteMany()
+        prisma.category.deleteMany(),
+        prisma.user.deleteMany()
     ])
 
-    const { categories, products } = initialData
+    const { categories, products, users } = initialData
+
+    //Insertando Usuarios
+    await prisma.user.createMany({
+        data: users
+    })
 
     //Insetando Categorias
     //De esta manera insertamos una sola categoria
