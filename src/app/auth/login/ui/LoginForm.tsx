@@ -1,13 +1,13 @@
 "use client"
 import { authenticate } from '@/actions'
 import Link from 'next/link'
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 
 export const LoginForm = () => {
 
-    const [state, dispatch] = useFormState(authenticate, undefined)
+    const [state, dispatch] = useActionState(authenticate, undefined)
 
-    console.log(state)
+    console.log("state: ", state)
 
     return (
         <form action={dispatch} className="flex flex-col">
