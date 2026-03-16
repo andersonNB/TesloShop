@@ -1,7 +1,10 @@
 "use client"
 import { authenticate } from '@/actions'
+import clsx from 'clsx'
 import Link from 'next/link'
 import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
+import { IoInformationOutline } from 'react-icons/io5'
 
 export const LoginForm = () => {
 
@@ -25,12 +28,15 @@ export const LoginForm = () => {
                 type="password"
                 name='password' />
 
-            <button
-                type='submit'
-                className="btn-primary">
-                Ingresar
-            </button>
+            {state === "CredentialsSignin" && (
 
+                <div className='flex items-center gap-3 mb-5'>
+                    <IoInformationOutline className="h-5 w-5 text-red-500" />
+                    <p className="text-sm text-red-500">Credenciales no son correctas</p>
+                </div>
+            )}
+
+            <LoginButton />
 
             {/* divisor l ine */}
             <div className="flex items-center my-5">
@@ -46,5 +52,24 @@ export const LoginForm = () => {
             </Link>
 
         </form>
+    )
+}
+
+
+function LoginButton() {
+
+    const { pending } = useFormStatus()
+
+
+    return (
+        <button type="submit" className={
+            clsx({
+                "btn-primary w-full": !pending,
+                "btn-disabled w-full cursor-not-allowed": pending
+            }
+            )
+        } aria-disabled={pending}>
+            Ingresar
+        </button>
     )
 }
