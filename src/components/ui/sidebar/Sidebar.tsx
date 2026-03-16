@@ -1,4 +1,5 @@
 "use client";
+import { logout } from "@/actions";
 import { SidebarItem, SidebarItems } from "@/components/sidebar/SidebarItems";
 import { useUIStore } from "@/store";
 import clsx from "clsx";
@@ -24,18 +25,35 @@ export const Sidebar = () => {
 		{
 			text: "Perfil",
 			icon: <IoPersonOutline size={30} />,
+			href: "/profile",
+			onClick: () => {
+				closeMenu()
+			}
 		},
 		{
 			text: "Ordenes",
 			icon: <IoTicketOutline size={30} />,
+			href: "/orders",
+			onClick: () => {
+				closeMenu()
+			}
 		},
 		{
 			text: "Ingresar",
 			icon: <IoLogInOutline size={30} />,
+			href: "",
+			onClick: () => {
+				closeMenu()
+			}
 		},
 		{
 			text: "Salir",
 			icon: <IoLogOutOutline size={30} />,
+			href: "",
+			onClick: () => {
+				closeMenu()
+				logout()
+			}
 		},
 	];
 
@@ -43,14 +61,20 @@ export const Sidebar = () => {
 		{
 			text: "Productos",
 			icon: <IoShirtOutline size={30} />,
+			href: "/products",
+			onClick: () => closeMenu()
 		},
 		{
 			text: "Ordenes",
 			icon: <IoTicketOutline size={30} />,
+			href: "/orders",
+			onClick: () => closeMenu()
 		},
 		{
 			text: "Usuarios",
 			icon: <IoPeopleOutline size={30} />,
+			href: "/admin/users",
+			onClick: () => closeMenu()
 		},
 	];
 
@@ -94,6 +118,8 @@ export const Sidebar = () => {
 							key={items.text}
 							text={items.text}
 							icon={items.icon}
+							href={items.href}
+							onClick={items.onClick}
 						/>
 					))}
 					{/* Separación */}
@@ -103,6 +129,8 @@ export const Sidebar = () => {
 							key={items.text + i}
 							text={items.text}
 							icon={items.icon}
+							href={items.href}
+							onClick={items.onClick}
 						/>
 					))}
 				</div>
