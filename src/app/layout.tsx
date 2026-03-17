@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { geistMono, geistSans } from "@/config/font";
+import { Provider } from "@/components";
 
 export const metadata: Metadata = {
 	title: {
@@ -20,7 +21,9 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased  min-h-screen`}
 			>
-				{children}
+				<Provider>
+					{children}
+				</Provider>
 			</body>
 		</html>
 	);

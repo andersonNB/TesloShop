@@ -3,6 +3,7 @@ import { logout } from "@/actions";
 import { SidebarItem, SidebarItems } from "@/components/sidebar/SidebarItems";
 import { useUIStore } from "@/store";
 import clsx from "clsx";
+import { useSession } from "next-auth/react";
 import {
 	IoCloseCircleOutline,
 	IoLogInOutline,
@@ -20,6 +21,12 @@ export const Sidebar = () => {
 	const isSideMenuOpen = useUIStore((state) => state.isSideMenuOpen);
 	const closeMenu = useUIStore((state) => state.closeSideMenu);
 
+	const { data: session } = useSession()
+
+	const isAuthenticated = !!session?.user
+
+	console.log("Sidebar: ", session)
+
 
 	const menuItemsSidebar: SidebarItem[] = [
 		{
@@ -28,7 +35,8 @@ export const Sidebar = () => {
 			href: "/profile",
 			onClick: () => {
 				closeMenu()
-			}
+			},
+			isVisible: isAuthenticated
 		},
 		{
 			text: "Ordenes",
@@ -36,7 +44,8 @@ export const Sidebar = () => {
 			href: "/orders",
 			onClick: () => {
 				closeMenu()
-			}
+			},
+			isVisible: isAuthenticated
 		},
 		{
 			text: "Ingresar",
@@ -44,7 +53,8 @@ export const Sidebar = () => {
 			href: "/auth/login",
 			onClick: () => {
 				closeMenu()
-			}
+			},
+			isVisible: !isAuthenticated
 		},
 		{
 			text: "Salir",
@@ -53,7 +63,8 @@ export const Sidebar = () => {
 			onClick: () => {
 				closeMenu()
 				logout()
-			}
+			},
+			isVisible: isAuthenticated
 		},
 	];
 
@@ -62,19 +73,22 @@ export const Sidebar = () => {
 			text: "Productos",
 			icon: <IoShirtOutline size={30} />,
 			href: "/products",
-			onClick: () => closeMenu()
+			onClick: () => closeMenu(),
+			isVisible: isAuthenticated
 		},
 		{
 			text: "Ordenes",
 			icon: <IoTicketOutline size={30} />,
 			href: "/orders",
-			onClick: () => closeMenu()
+			onClick: () => closeMenu(),
+			isVisible: isAuthenticated
 		},
 		{
 			text: "Usuarios",
 			icon: <IoPeopleOutline size={30} />,
 			href: "/admin/users",
-			onClick: () => closeMenu()
+			onClick: () => closeMenu(),
+			isVisible: isAuthenticated
 		},
 	];
 
@@ -120,6 +134,7 @@ export const Sidebar = () => {
 							icon={items.icon}
 							href={items.href}
 							onClick={items.onClick}
+							isVisible={items.isVisible}
 						/>
 					))}
 					{/* Separación */}
@@ -131,6 +146,7 @@ export const Sidebar = () => {
 							icon={items.icon}
 							href={items.href}
 							onClick={items.onClick}
+							isVisible={items.isVisible}
 						/>
 					))}
 				</div>
