@@ -13,7 +13,9 @@ export async function authenticate(
 ) {
     try {
         // console.log("actions auth:", Object.fromEntries(formData))
-        await signIn("credentials", { ...Object.fromEntries(formData) })
+        await signIn("credentials", { ...Object.fromEntries(formData), redirect: false })
+
+        return "Success"
     } catch (error) {
 
 

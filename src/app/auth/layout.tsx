@@ -7,6 +7,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
 
 	console.log({ session })
 
+	//Si existe la sesión, redirigimos al usuario a la página principal
 	if (session?.user) {
 		redirect("/")
 	}

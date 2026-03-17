@@ -41,7 +41,7 @@ export const Sidebar = () => {
 		{
 			text: "Ingresar",
 			icon: <IoLogInOutline size={30} />,
-			href: "",
+			href: "/auth/login",
 			onClick: () => {
 				closeMenu()
 			}
