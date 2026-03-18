@@ -16,7 +16,7 @@ export default async function ProfilePage() {
             {
                 <pre>
                     {
-                        JSON.stringify(session.user, null, 2)
+                        JSON.stringify(session, null, 2)
                     }
                 </pre>
 

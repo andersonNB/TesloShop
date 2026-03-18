@@ -53,7 +53,7 @@ export const getPaginatedProductsWithImages = async ({ page = 1, take = 12, gend
             })
         ]);
 
-        console.log({ products, totalCount })
+        // console.log({ products, totalCount })
 
         const totalPages = Math.ceil(totalCount / take);
 
