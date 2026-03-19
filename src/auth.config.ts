@@ -23,7 +23,7 @@ export const authConfig = {
         session({ token, session }) {
             session.user = token.data
             session.customProps2 = token.customProps2 as string
-            console.log("auth.config session: ", { token, session })
+            console.log("auth.config session:", { token, session })
             return session
         }
     },
