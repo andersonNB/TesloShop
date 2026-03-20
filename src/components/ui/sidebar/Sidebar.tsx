@@ -61,8 +61,8 @@ export const Sidebar = () => {
 			text: "Salir",
 			icon: <IoLogOutOutline size={30} />,
 			href: "",
-			onClick: () => {
-				logout()
+			onClick: async () => {
+				await logout()
 				update()
 				closeMenu()
 			},
