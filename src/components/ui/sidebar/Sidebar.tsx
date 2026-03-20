@@ -21,10 +21,11 @@ export const Sidebar = () => {
 	const isSideMenuOpen = useUIStore((state) => state.isSideMenuOpen);
 	const closeMenu = useUIStore((state) => state.closeSideMenu);
 
-	const { data: session } = useSession()
+	const { data: session, update } = useSession()
 
 	const isAuthenticated = !!session?.user
-
+	const isAdmin = session?.user.role === "admin"
+	const isUser = session?.user.role === "user"
 	console.log("Sidebar: ", session)
 
 
@@ -36,7 +37,7 @@ export const Sidebar = () => {
 			onClick: () => {
 				closeMenu()
 			},
-			isVisible: isAuthenticated
+			isVisible: isAuthenticated && isUser
 		},
 		{
 			text: "Ordenes",
@@ -45,7 +46,7 @@ export const Sidebar = () => {
 			onClick: () => {
 				closeMenu()
 			},
-			isVisible: isAuthenticated
+			isVisible: isAuthenticated && isUser
 		},
 		{
 			text: "Ingresar",
@@ -61,8 +62,9 @@ export const Sidebar = () => {
 			icon: <IoLogOutOutline size={30} />,
 			href: "",
 			onClick: () => {
-				closeMenu()
 				logout()
+				update()
+				closeMenu()
 			},
 			isVisible: isAuthenticated
 		},
@@ -74,23 +76,24 @@ export const Sidebar = () => {
 			icon: <IoShirtOutline size={30} />,
 			href: "/products",
 			onClick: () => closeMenu(),
-			isVisible: isAuthenticated
+			isVisible: isAuthenticated && isAdmin
 		},
 		{
 			text: "Ordenes",
 			icon: <IoTicketOutline size={30} />,
 			href: "/orders",
 			onClick: () => closeMenu(),
-			isVisible: isAuthenticated
+			isVisible: isAuthenticated && isAdmin
 		},
 		{
 			text: "Usuarios",
 			icon: <IoPeopleOutline size={30} />,
 			href: "/admin/users",
 			onClick: () => closeMenu(),
-			isVisible: isAuthenticated
+			isVisible: isAuthenticated && isAdmin
 		},
 	];
+
 
 	return (
 		<div>

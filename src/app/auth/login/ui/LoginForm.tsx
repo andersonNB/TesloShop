@@ -1,6 +1,7 @@
 "use client"
 import { authenticate } from '@/actions'
 import clsx from 'clsx'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState, useEffect } from 'react'
@@ -11,14 +12,18 @@ export const LoginForm = () => {
 
     const [state, dispatch] = useActionState(authenticate, undefined)
     const router = useRouter()
+    const { update } = useSession()
 
     console.log("state: ", state)
 
     useEffect(() => {
         if (state === "Success") {
+            //Este update sirve para actualizar la sesión de mi provider del lado del cliente ya que aunque el server tiene la info
+            //no se actualiza automaticamente en el cliente
+            update()
             router.replace("/")
         }
-    }, [router, state])
+    }, [router, state, update])
 
     return (
         <form action={dispatch} className="flex flex-col">

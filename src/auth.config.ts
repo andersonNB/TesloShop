@@ -54,7 +54,7 @@ export const authConfig = {
 
                     //regresar el usuario sin el password
                     const { password: _, ...rest } = user
-                    console.log("auth.config rest: ", rest)
+                    console.log("authorize rest: ", rest)
                     //regresar el usuario
                     return rest
                 } catch (error) {
