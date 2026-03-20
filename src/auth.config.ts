@@ -15,13 +15,13 @@ export const authConfig = {
         jwt({ token, user }) {
             console.log("auth.config jwt: ", { token, user })
             if (user) {
-                token.data = { ...user, customProps: "puedo colcoar props en data" }
+                token.data = { ...user, customProps: "puedo colcoar props en data" } as typeof token.data
                 token.customProps2 = "y puedo añadir mas props en el token"
             }
             return token
         },
         session({ token, session }) {
-            session.user = token.data
+            session.user = token.data as typeof session.user
             session.customProps2 = token.customProps2 as string
             console.log("auth.config session:", { token, session })
             return session
