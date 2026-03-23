@@ -22,7 +22,7 @@ export const RegisterForm = () => {
 
             <label htmlFor="email">Nombre completo</label>
             <input
-                className="px-5 py-2 border bg-gray-200 rounded mb-5"
+                className="px-5 py-2 border bg-gray-200 rounded mb-5 "
                 type="text"
                 {...register("name", { required: true })}
             />
