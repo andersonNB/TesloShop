@@ -14,11 +14,20 @@ export default async function ProfilePage() {
         <div>
             <Title title='Perfil' />
             {
-                <pre>
+                <>
+
+                    <pre>
+                        {
+                            JSON.stringify(session, null, 2)
+                        }
+                    </pre>
+
                     {
-                        JSON.stringify(session, null, 2)
+                        <h1 className='text-2xl capitalize'>
+                            {session.user.role}
+                        </h1>
                     }
-                </pre>
+                </>
 
             }
         </div>
