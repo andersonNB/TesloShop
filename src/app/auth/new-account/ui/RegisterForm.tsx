@@ -1,6 +1,7 @@
 "use client"
 import { login, registerUser } from '@/actions'
 import clsx from 'clsx'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -17,6 +18,7 @@ export const RegisterForm = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>()
     const [errorMessage, setErroMessage] = useState("")
     const router = useRouter()
+    const { update } = useSession()
 
 
     const onSubmit: SubmitHandler<FormInputs> = async (data: FormInputs) => {
@@ -36,7 +38,7 @@ export const RegisterForm = () => {
         const responseLogin = await login(email.toLowerCase(), password)
 
         if (responseLogin.ok) {
-            //TODO: revisar Error: NEXT_REDIRECT
+            update()
             router.replace("/")
         }
 

@@ -74,7 +74,9 @@ export const login = async (email: string, password: string) => {
 
 
     try {
-        await signIn("credentials", { email, password })
+        //el signIn de next-auth redirige por defecto y puede causar errores( Error: NEXT_REDIRECT) 
+        //si queremos redirigir desde el cliente, debemos pasar redirect: false
+        await signIn("credentials", { email, password, redirect: false })
 
         return {
             ok: true
