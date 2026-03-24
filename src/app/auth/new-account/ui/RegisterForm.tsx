@@ -1,5 +1,8 @@
 "use client"
+import { registerUser } from '@/actions'
+import clsx from 'clsx'
 import Link from 'next/link'
+import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
 type FormInputs = {
@@ -11,42 +14,102 @@ type FormInputs = {
 export const RegisterForm = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>()
+    const [errorMessage, setErroMessage] = useState("")
 
 
     const onSubmit: SubmitHandler<FormInputs> = async (data: FormInputs) => {
-        console.log(data)
+
+
+        const { email, password, name } = data
+
+        if (email.trim().length === 0 || password.trim().length === 0 || name.trim().length === 0) return
+
+        const response = await registerUser(name, email, password)
+
+        if (!response.ok) {
+            setErroMessage(response.message)
+            return;
+        }
+
+        setErroMessage("")
     }
-    console.log(errors)
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
 
-            <label htmlFor="email">Nombre completo</label>
+            <label htmlFor="email" className={
+                clsx(
+                    "text-md",
+                    {
+                        "text-red-500": !!errors.name
+                    }
+                )
+            }>Nombre completo</label>
             <input
-                className="px-5 py-2 border bg-gray-200 rounded mb-5 "
+                className={
+                    clsx(
+                        "px-5 py-2 border bg-gray-200 rounded mb-5",
+                        {
+                            "border-red-500": !!errors.name
+                        }
+                    )
+                }
                 type="text"
                 {...register("name", { required: true })}
             />
 
 
-            <label htmlFor="email">Correo electrónico</label>
+            <label htmlFor="email" className={
+                clsx(
+                    "text-md",
+                    {
+                        "text-red-500": !!errors.email
+                    }
+                )
+            }>Correo electrónico</label>
             <input
-                className="px-5 py-2 border bg-gray-200 rounded mb-5"
+                className={
+                    clsx(
+                        "px-5 py-2 border bg-gray-200 rounded mb-5",
+                        {
+                            "border-red-500": !!errors.email
+                        }
+                    )
+                }
                 // type="email"
                 {...register("email", { required: true, pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, })}
             />
-            {
+            {/* {
                 errors?.email && (
                     <p className="text-red-500">El correo electrónico no es válido</p>
                 )
-            }
+            } */}
 
 
-            <label htmlFor='password'>Contraseña</label>
+            <label htmlFor='password' className={
+                clsx(
+                    "text-md",
+                    {
+                        "text-red-500": !!errors.password
+                    }
+                )
+            }>Contraseña</label>
             <input
-                className='px-5 py-2 border bg-gray-200 rounded mb-5'
+                className={
+                    clsx(
+                        "px-5 py-2 border bg-gray-200 rounded mb-5",
+                        {
+                            "border-red-500": !!errors.password
+                        }
+                    )
+                }
                 type='password'
                 {...register("password", { required: true })}
             />
+
+            {
+                errorMessage.length > 0 && <span className='text-red-500 mb-2'>{errorMessage}</span>
+            }
 
             <button
                 type="submit"
