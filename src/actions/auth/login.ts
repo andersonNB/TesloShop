@@ -3,10 +3,23 @@ import { signIn } from "@/auth.config";
 import { AuthError } from "next-auth";
 
 
-// authorize() → retorna null
-//   → Auth.js internamente → lanza CredentialsSignin
-//     → signIn() en tu action → aquí es donde debes atraparlo ⬅️
-
+/**
+ * Server action para autenticar un usuario mediante credenciales.
+ *
+ * Diseñada para ser usada con `useFormState` de React. Recibe el estado
+ * previo y los datos del formulario, intenta iniciar sesión con Auth.js
+ * y retorna un string indicando el resultado.
+ *
+ * @param {string | undefined} prevState - Estado previo del formulario (manejado por `useFormState`).
+ * @param {FormData} formData - Datos del formulario con los campos `email` y `password`.
+ * @returns {Promise<string>} Retorna `"Success"` si la autenticación es exitosa,
+ *   `"CredentialsSignin"` si las credenciales son inválidas, o `"UnknownError"` para otros errores de Auth.js.
+ * @throws {Error} Re-lanza errores que no sean de tipo `AuthError`.
+ *
+ * @example
+ * // Uso con useFormState en un componente cliente
+ * const [state, dispatch] = useFormState(authenticate, undefined);
+ */
 export async function authenticate(
     prevState: string | undefined,
     formData: FormData
@@ -31,5 +44,48 @@ export async function authenticate(
         }
 
         throw error
+    }
+}
+
+
+
+/**
+ * Server action para iniciar sesión con email y contraseña.
+ *
+ * A diferencia de `authenticate`, esta función recibe los parámetros
+ * directamente (no como `FormData`) y retorna un objeto con el estado
+ * del resultado, lo que facilita su uso desde componentes cliente.
+ *
+ * @param {string} email - Correo electrónico del usuario.
+ * @param {string} password - Contraseña del usuario.
+ * @returns {Promise<{ok: true} | {ok: false, message: string}>}
+ *   - Si el login es exitoso, retorna `{ ok: true }`.
+ *   - Si ocurre un error, retorna `{ ok: false, message }` con un mensaje descriptivo.
+ *
+ * @example
+ * const result = await login("juan@correo.com", "miPassword123");
+ * if (result.ok) {
+ *   router.replace("/");
+ * } else {
+ *   console.error(result.message);
+ * }
+ */
+export const login = async (email: string, password: string) => {
+
+
+    try {
+        await signIn("credentials", { email, password })
+
+        return {
+            ok: true
+        }
+
+    } catch (error) {
+        console.error({ error })
+
+        return {
+            ok: false,
+            message: "No se pudo iniciar sesión"
+        }
     }
 }

@@ -1,7 +1,8 @@
 "use client"
-import { registerUser } from '@/actions'
+import { login, registerUser } from '@/actions'
 import clsx from 'clsx'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
@@ -15,6 +16,7 @@ export const RegisterForm = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>()
     const [errorMessage, setErroMessage] = useState("")
+    const router = useRouter()
 
 
     const onSubmit: SubmitHandler<FormInputs> = async (data: FormInputs) => {
@@ -29,6 +31,13 @@ export const RegisterForm = () => {
         if (!response.ok) {
             setErroMessage(response.message)
             return;
+        }
+
+        const responseLogin = await login(email.toLowerCase(), password)
+
+        if (responseLogin.ok) {
+            //TODO: revisar Error: NEXT_REDIRECT
+            router.replace("/")
         }
 
         setErroMessage("")
