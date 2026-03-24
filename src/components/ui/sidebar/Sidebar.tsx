@@ -21,12 +21,12 @@ export const Sidebar = () => {
 	const isSideMenuOpen = useUIStore((state) => state.isSideMenuOpen);
 	const closeMenu = useUIStore((state) => state.closeSideMenu);
 
-	const { data: session, update } = useSession()
+	const { data: session, update, status } = useSession()
 
 	const isAuthenticated = !!session?.user
 	const isAdmin = session?.user.role === "admin"
 	const isUser = session?.user.role === "user"
-	console.log("Sidebar: ", session)
+	console.log("Sidebar: ", session, "- status: ", status)
 
 
 	const menuItemsSidebar: SidebarItem[] = [

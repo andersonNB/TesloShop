@@ -72,11 +72,14 @@ export async function authenticate(
  */
 export const login = async (email: string, password: string) => {
 
-
     try {
-        //el signIn de next-auth redirige por defecto y puede causar errores( Error: NEXT_REDIRECT) 
-        //si queremos redirigir desde el cliente, debemos pasar redirect: false
+        // el signIn de next-auth redirige por defecto y puede causar errores( Error: NEXT_REDIRECT) 
+        // si queremos redirigir desde el cliente, debemos pasar redirect: false
+        // cuando queremos hacer la dirección desde el server tenemos que tener en cuenta que la funcion signIn retorna un "error" con el tipo NEXT_REDIRECT
+        // por lo tanto o lo capturamos en el trycatch o lo sacamos de dicho bloque o usamos redirect:false
+        // await signIn("credentials", { email, password, redirectTo: "/" })
         await signIn("credentials", { email, password, redirect: false })
+
 
         return {
             ok: true
@@ -85,9 +88,13 @@ export const login = async (email: string, password: string) => {
     } catch (error) {
         console.error({ error })
 
-        return {
-            ok: false,
-            message: "No se pudo iniciar sesión"
+        if (error instanceof AuthError) {
+            return {
+                ok: false,
+                message: "No se pudo iniciar sesión"
+            }
         }
+
+        throw error // re-lanza  NEXT_REDIRECT 
     }
 }
