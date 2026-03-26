@@ -4,6 +4,7 @@ import { SidebarItem, SidebarItems } from "@/components/sidebar/SidebarItems";
 import { useUIStore } from "@/store";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
 	IoCloseCircleOutline,
 	IoLogInOutline,
@@ -22,12 +23,19 @@ export const Sidebar = () => {
 	const closeMenu = useUIStore((state) => state.closeSideMenu);
 
 	const { data: session, update, status } = useSession()
-
+	const router = useRouter()
 	const isAuthenticated = !!session?.user
 	const isAdmin = session?.user.role === "admin"
 	const isUser = session?.user.role === "user"
 	console.log("Sidebar: ", session, "- status: ", status)
 
+
+	const logoutAction = async () => {
+		await logout()
+		await update()
+		closeMenu()
+		router.replace("/auth/login")
+	}
 
 	const menuItemsSidebar: SidebarItem[] = [
 		{
@@ -61,11 +69,7 @@ export const Sidebar = () => {
 			text: "Salir",
 			icon: <IoLogOutOutline size={30} />,
 			href: "",
-			onClick: async () => {
-				await logout()
-				update()
-				closeMenu()
-			},
+			onClick: logoutAction,
 			isVisible: isAuthenticated
 		},
 	];

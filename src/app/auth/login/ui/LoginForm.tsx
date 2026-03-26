@@ -81,8 +81,14 @@ function LoginButton() {
                 "btn-disabled w-full cursor-not-allowed": pending
             }
             )
-        } aria-disabled={pending}>
-            Ingresar
+        } aria-disabled={pending} disabled={pending}>
+            {pending ? (
+                <span className="flex items-center justify-center gap-2">
+                    Ingresando...
+                </span>
+            ) : (
+                "Ingresar"
+            )}
         </button>
     )
 }
