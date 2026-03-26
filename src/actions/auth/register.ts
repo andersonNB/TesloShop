@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { registerSchema } from "@/schema/createUser"
 import bcrypt from "bcryptjs"
 
 
@@ -29,6 +30,14 @@ import bcrypt from "bcryptjs"
 export const registerUser = async (name: string, email: string, password: string) => {
 
 
+    const parsed = registerSchema.safeParse({ name, email, password })
+
+    if (!parsed.success) {
+        return {
+            ok: false,
+            message: parsed.error.issues[0].message
+        }
+    }
 
     try {
 
@@ -53,7 +62,7 @@ export const registerUser = async (name: string, email: string, password: string
         }
 
     } catch (error) {
-        console.error({ error })
+        console.error("Error al registrar usuario: ", { error })
 
         return {
             ok: false,
