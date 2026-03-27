@@ -16,7 +16,7 @@ export const LoginForm = () => {
     const searchParams = useSearchParams()
     const returnTo = searchParams.get("returnTo") || "/"
 
-    console.log("state: ", state)
+    console.log("state: ", state, " returnTo: ", returnTo)
 
     useEffect(() => {
         if (state?.ok) {
