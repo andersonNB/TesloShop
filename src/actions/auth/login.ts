@@ -1,5 +1,6 @@
 "use server"
 import { signIn } from "@/auth.config";
+import { loginSchema } from "@/schema/login";
 import { AuthError } from "next-auth";
 
 
@@ -21,14 +22,23 @@ import { AuthError } from "next-auth";
  * const [state, dispatch] = useFormState(authenticate, undefined);
  */
 export async function authenticate(
-    prevState: string | undefined,
+    prevState: { ok: boolean; message: string } | undefined,
     formData: FormData
 ) {
+
+    const parsed = loginSchema.safeParse(Object.fromEntries(formData))
+
+    if (!parsed.success) {
+        return {
+            ok: false,
+            message: parsed.error.issues[0].message
+        }
+    }
     try {
         // console.log("actions auth:", Object.fromEntries(formData))
         await signIn("credentials", { ...Object.fromEntries(formData), redirect: false })
 
-        return "Success"
+        return { ok: true, message: "Success" }
     } catch (error) {
 
 
@@ -36,10 +46,10 @@ export async function authenticate(
             switch (error.type) {
                 case "CredentialsSignin":
 
-                    return "CredentialsSignin"
+                    return { ok: false, message: "CredentialsSignin" }
 
                 default:
-                    return "UnknownError"
+                    return { ok: false, message: "UnknownError" }
             }
         }
 

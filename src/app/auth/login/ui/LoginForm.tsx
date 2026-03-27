@@ -3,7 +3,7 @@ import { authenticate } from '@/actions'
 import clsx from 'clsx'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useActionState, useEffect } from 'react'
 import { useFormStatus } from 'react-dom'
 import { IoInformationOutline } from 'react-icons/io5'
@@ -13,17 +13,19 @@ export const LoginForm = () => {
     const [state, dispatch] = useActionState(authenticate, undefined)
     const router = useRouter()
     const { update } = useSession()
+    const searchParams = useSearchParams()
+    const returnTo = searchParams.get("returnTo") || "/"
 
     console.log("state: ", state)
 
     useEffect(() => {
-        if (state === "Success") {
+        if (state?.ok) {
             //Este update sirve para actualizar la sesión de mi provider del lado del cliente ya que aunque el server tiene la info
             //no se actualiza automaticamente en el cliente
             update()
-            router.replace("/")
+            router.replace(returnTo)
         }
-    }, [router, state, update])
+    }, [returnTo, router, state, update])
 
     return (
         <form action={dispatch} className="flex flex-col">
@@ -41,11 +43,11 @@ export const LoginForm = () => {
                 type="password"
                 name='password' />
 
-            {state === "CredentialsSignin" && (
+            {state && !state.ok && (
 
                 <div className='flex items-center gap-3 mb-5'>
                     <IoInformationOutline className="h-5 w-5 text-red-500" />
-                    <p className="text-sm text-red-500">Credenciales no son correctas</p>
+                    <p className="text-sm text-red-500">{state.message === "CredentialsSignin" ? "Credenciales no son correctas" : state.message}</p>
                 </div>
             )}
 

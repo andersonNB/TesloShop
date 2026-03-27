@@ -8,7 +8,10 @@ export interface SidebarItem {
 	isVisible: boolean
 }
 
-//TODO: como funciona el api/auth/[...nextauth]/route.ts y cuando inicio sesion por primera vez la sessión en el cliente no se actualiza debo recargar para que la tome
+//DONE: como funciona el api/auth/[...nextauth]/route.ts y cuando inicio sesion por primera vez la sessión en el cliente no se actualiza debo recargar para que la tome
+// el problema era la forma en como estaba haciendo al redirección ya que cuando se hace todo desde el server
+// y los componentes son server no hay problema pero cuando hay dos flujos de cliente y servidor se da el caso de que el provider
+// de next no se actualiza entonces hay que forzar una actualización en el punto donde se hace la redirección
 
 export const SidebarItems = ({ text, icon, href, onClick, isVisible = true }: SidebarItem) => {
 	return (
