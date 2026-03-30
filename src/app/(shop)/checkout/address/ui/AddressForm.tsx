@@ -1,49 +1,197 @@
-import Link from 'next/link'
+"use client"
+import clsx from 'clsx';
+import { Controller, useForm } from 'react-hook-form';
+
+
+type FormInputs = {
+    firstName: string;
+    lastName: string;
+    address: string;
+    address2?: string;
+    postalCode: string;
+    city: string;
+    country: string;
+    phone: string;
+    rememberAddress: boolean
+}
 
 export const AddressForm = () => {
+
+    const { formState: { isValid }, handleSubmit, control } = useForm<FormInputs>({
+        defaultValues: {
+            //TODO: Cargar info de la base de datos
+            firstName: "",
+            lastName: "",
+            address: "",
+            address2: "",
+            postalCode: "",
+            city: "",
+            country: "",
+            phone: "",
+            rememberAddress: false
+        }
+    });
+
+    //TODO: todo es requerido en el formulario menos dirección 2 y recordar dirección, hacer un schema correspondiente
+    const onSubmit = (data: FormInputs) => {
+        console.log(data)
+    }
+
     return (
-        <div className="grid grid-cols-1 gap-2 sm:gap-5 sm:grid-cols-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-2 sm:gap-5 sm:grid-cols-2">
             <div className="flex flex-col mb-2">
                 <span>Nombres</span>
-                <input type="text" className="p-2 border rounded-md bg-gray-200" />
+                <Controller
+                    name="firstName"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        console.log("fieldState: ", fieldState)
+                        return (
+
+                            <>
+                                <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+
+
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+
+                            </>
+
+                        )
+                    }}
+
+
+                />
             </div>
 
             <div className="flex flex-col mb-2">
                 <span>Apellidos</span>
-                <input type="text" className="p-2 border rounded-md bg-gray-200" />
+                <Controller
+                    name="lastName"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        return (
+                            <>
+                                <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+                            </>
+                        )
+                    }}
+                />
             </div>
 
             <div className="flex flex-col mb-2">
                 <span>Dirección</span>
-                <input type="text" className="p-2 border rounded-md bg-gray-200" />
+                <Controller
+                    name="address"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        return (
+                            <>
+                                <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+                            </>
+                        )
+                    }}
+                />
             </div>
 
             <div className="flex flex-col mb-2">
                 <span>Dirección 2 (opcional)</span>
-                <input type="text" className="p-2 border rounded-md bg-gray-200" />
+                <Controller
+                    name="address2"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        return (
+                            <>
+                                <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+                            </>
+                        )
+                    }}
+                />
             </div>
 
             <div className="flex flex-col mb-2">
                 <span>Código postal</span>
-                <input type="text" className="p-2 border rounded-md bg-gray-200" />
+                <Controller
+                    name="postalCode"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        return (
+                            <>
+                                <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+                            </>
+                        )
+                    }}
+                />
             </div>
 
             <div className="flex flex-col mb-2">
                 <span>Ciudad</span>
-                <input type="text" className="p-2 border rounded-md bg-gray-200" />
+                <Controller
+                    name="city"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        return (
+                            <>
+                                <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+                            </>
+                        )
+                    }}
+                />
             </div>
 
             <div className="flex flex-col mb-2">
                 <span>País</span>
-                <select className="p-2 border rounded-md bg-gray-200">
-                    <option value="">[ Seleccione ]</option>
-                    <option value="CRI">Costa Rica</option>
-                </select>
+                <Controller
+                    name="country"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        return (
+                            <>
+                                <select className="p-2 border rounded-md bg-gray-200" {...field}>
+                                    <option value="">[ Seleccione ]</option>
+                                    <option value="CRI">Costa Rica</option>
+                                </select>
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+                            </>
+                        )
+                    }}
+                />
             </div>
 
             <div className="flex flex-col mb-2">
                 <span>Teléfono</span>
-                <input type="text" className="p-2 border rounded-md bg-gray-200" />
+                <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field, fieldState }) => {
+                        return (
+                            <>
+                                <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+                                {fieldState?.error && (
+                                    <p className="text-red-500">{fieldState?.error.message}</p>
+                                )}
+                            </>
+                        )
+                    }}
+                />
             </div>
             <div className="flex items-center">
                 <label
@@ -51,11 +199,25 @@ export const AddressForm = () => {
                     htmlFor="checkbox"
                     data-ripple-dark="true"
                 >
-                    <input
-                        type="checkbox"
-                        className=" border-gray-500 before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-blue-500 checked:bg-blue-500 checked:before:bg-blue-500 hover:before:opacity-10"
-                        id="checkbox"
-                        checked
+                    <Controller
+                        name="rememberAddress"
+                        control={control}
+                        render={({ field, fieldState }) => {
+                            return (
+                                <>
+                                    <input
+                                        type="checkbox"
+                                        className=" border-gray-500 before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-blue-500 checked:bg-blue-500 checked:before:bg-blue-500 hover:before:opacity-10"
+                                        id="checkbox"
+                                        checked={field.value}
+                                        onChange={field.onChange}
+                                    />
+                                    {fieldState?.error && (
+                                        <p className="text-red-500">{fieldState?.error.message}</p>
+                                    )}
+                                </>
+                            )
+                        }}
                     />
                     <div className="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
                         <svg
@@ -85,13 +247,20 @@ export const AddressForm = () => {
             />
 
             <div className="flex flex-col mb-2 sm:mt-10">
-                <Link
-                    href="/checkout"
-                    className="btn-primary flex w-full sm:w-1/2 justify-center "
+                <button
+                    // href="/checkout"
+                    type='submit'
+                    className={
+                        clsx({
+                            "btn-primary flex w-full sm:w-1/2 justify-center ": isValid,
+                            "btn-disabled flex w-full sm:w-1/2 justify-center ": !isValid
+                        })
+                    }
+                    disabled={!isValid}
                 >
-                    Siguiente
-                </Link>
+                    Siguiente.
+                </button>
             </div>
-        </div>
+        </form>
     )
 }
