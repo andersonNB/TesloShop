@@ -32,7 +32,7 @@ export const AddressForm = () => {
         }
     });
 
-    //TODO: todo es requerido en el formulario menos dirección 2 y recordar dirección, hacer un schema correspondiente
+    //TODO: todo es requerido en el formulario menos dirección 2 y recordar dirección, hacer un schema correspondiente.
     const onSubmit = (data: FormInputs) => {
         console.log(data)
     }
