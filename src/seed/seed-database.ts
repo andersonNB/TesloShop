@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { prisma } from "../lib/prisma";
 import { initialData } from './seed';
+import { countries } from './seed-countries';
 
 async function main() {
     console.log("Iniciando semilla");
@@ -10,16 +11,16 @@ async function main() {
         prisma.productImage.deleteMany(),
         prisma.product.deleteMany(),
         prisma.category.deleteMany(),
-        prisma.user.deleteMany()
+        prisma.user.deleteMany(),
+        prisma.country.deleteMany()
     ])
 
-    const { categories, products, users } = initialData
+    const { categories, products, users, } = initialData
 
     //Insertando Usuarios
     await prisma.user.createMany({
         data: users
     })
-
     //Insetando Categorias
     //De esta manera insertamos una sola categoria
     // await prisma.category.create({
@@ -28,6 +29,11 @@ async function main() {
 
     //     }
     // })
+
+    //Insetando los paises
+    await prisma.country.createMany({
+        data: countries
+    })
 
     //Insertamos varias categorias
     const categoriesData = categories.map((category) => ({
