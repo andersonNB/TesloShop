@@ -21,7 +21,7 @@ async function main() {
     await prisma.user.createMany({
         data: users
     })
-    //Insetando Categorias
+    //Insertando Categorias
     //De esta manera insertamos una sola categoria
     // await prisma.category.create({
     //     data:{
@@ -30,7 +30,7 @@ async function main() {
     //     }
     // })
 
-    //Insetando los paises
+    //Insertando los paises
     await prisma.country.createMany({
         data: countries
     })
