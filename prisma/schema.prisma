@@ -1,19 +1,45 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ============================================================================
+// Prisma Schema - TesloShop
+// ============================================================================
+// Este archivo define la estructura de la base de datos y las relaciones
+// entre las tablas. Prisma lo usa para generar el cliente tipado (PrismaClient)
+// y para ejecutar migraciones contra PostgreSQL.
+//
+// Conceptos clave:
+//   - model     → Define una tabla en la base de datos
+//   - enum      → Define un tipo enumerado (valores fijos permitidos)
+//   - @relation → Define cómo se conectan dos tablas (FK → PK)
+//   - @@index   → Crea un índice en la DB para acelerar consultas
+// ============================================================================
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-//Los modelos en prisma son como las tablas en la base de datos
+// --------------------------------------------------------------------------
+// Generator: Configura cómo Prisma genera el cliente
+// --------------------------------------------------------------------------
+// - provider: "prisma-client-js" genera el cliente para JavaScript/TypeScript
+// - engineType: "binary" usa el motor binario nativo (más compatible en Windows)
 generator client {
   provider   = "prisma-client-js"
   engineType = "binary"
 }
 
+// --------------------------------------------------------------------------
+// Datasource: Conexión a la base de datos
+// --------------------------------------------------------------------------
+// - provider: tipo de base de datos (postgresql, mysql, sqlite, etc.)
+// - La URL de conexión se toma de la variable DATABASE_URL en .env
 datasource db {
   provider = "postgresql"
 }
 
+// ============================================================================
+// ENUMS
+// ============================================================================
+// Los enums restringen los valores posibles de un campo a un conjunto fijo.
+// En PostgreSQL se crean como tipos ENUM nativos.
+// ============================================================================
+
+/// Tallas disponibles para los productos de ropa.
+/// Se usan en el campo Product.sizes como un array de Size[].
 enum Size {
   XS
   S
@@ -24,67 +50,223 @@ enum Size {
   XXXL
 }
 
+/// Género/categoría de público objetivo del producto.
+/// Determina en qué sección de la tienda aparece el producto.
 enum Gender {
-  men
-  women
-  kid
-  unisex
+  men    // Hombres
+  women  // Mujeres
+  kid    // Niños
+  unisex // Unisex
 }
 
+/// Roles de usuario en el sistema.
+/// Controla los permisos y acceso a funcionalidades (ej: panel admin).
 enum Role {
-  admin
-  user
+  admin // Administrador - acceso total
+  user  // Usuario regular - solo compras
 }
 
+// ============================================================================
+// MODELOS (TABLAS)
+// ============================================================================
+
+// --------------------------------------------------------------------------
+// Category
+// --------------------------------------------------------------------------
+/// Categorías de productos (ej: "Camisetas", "Pantalones", "Zapatos").
+///
+/// Relaciones:
+///   - Category 1 ←→ N Product (una categoría tiene muchos productos)
+///
+/// El campo `products` NO crea una columna en la DB, es una relación virtual
+/// que permite hacer: category.products para obtener todos los productos
+/// de esa categoría.
 model Category {
-  id       String    @id @default(uuid())
-  name     String    @unique
+  /// Identificador único (UUID generado automáticamente)
+  id   String @id @default(uuid())
+  /// Nombre de la categoría (debe ser único, no pueden haber dos "Camisetas")
+  name String @unique
+
+  /// Relación 1:N → Lista de productos que pertenecen a esta categoría.
+  /// Este campo es virtual (no existe como columna en la tabla Category).
+  /// Prisma lo usa para permitir consultas como:
+  ///   prisma.category.findMany({ include: { products: true } })
   products Product[]
 
+  /// Índice en la columna `name` para acelerar búsquedas por nombre de categoría.
   @@index([name])
 }
 
-// De esta manera establecemos la relacion entre Category y Product
+// --------------------------------------------------------------------------
+// Product
+// --------------------------------------------------------------------------
+/// Productos de la tienda (camisetas, pantalones, etc.).
+///
+/// Relaciones:
+///   - Product N ←→ 1 Category  (cada producto pertenece a UNA categoría)
+///   - Product 1 ←→ N ProductImage (un producto tiene MUCHAS imágenes)
+///
+/// ¿Cómo funciona @relation?
+///   category Category @relation(fields: [categoryId], references: [id])
+///   Esto significa:
+///     - "fields: [categoryId]" → la columna FK en ESTA tabla (Product)
+///     - "references: [id]"    → la columna PK en la OTRA tabla (Category)
+///     - Resultado: Product.categoryId apunta a Category.id
 model Product {
-  id          String         @id @default(uuid())
+  id          String @id @default(uuid())
   description String
+  /// Cantidad en inventario
   inStock     Int
-  price       Float          @default(0)
-  sizes       Size[]         @default([])
-  slug        String         @unique
-  tags        String[]       @default([])
+  /// Precio del producto (valor por defecto: 0)
+  price       Float  @default(0)
+  /// Array de tallas disponibles (ej: [S, M, L]).
+  /// En PostgreSQL se almacena como un array nativo de tipo Size[].
+  sizes       Size[] @default([])
+  /// URL amigable del producto (ej: "camiseta-nike-azul"). Debe ser único.
+  slug        String @unique
+  /// Etiquetas para búsqueda y filtrado (ej: ["nike", "deporte", "azul"])
+  tags        String[] @default([])
   title       String
+  /// Género objetivo del producto (men, women, kid, unisex)
   gender      Gender
-  category    Category       @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  images      ProductImage[]
 
+  /// Relación N:1 con Category.
+  /// - FK: categoryId en esta tabla → apunta a Category.id
+  /// - Prisma genera: FOREIGN KEY (categoryId) REFERENCES Category(id)
+  /// - Permite hacer: product.category para obtener la categoría del producto
+  category   Category @relation(fields: [categoryId], references: [id])
+  /// Columna FK que almacena el ID de la categoría a la que pertenece este producto
+  categoryId String
+
+  /// Relación 1:N → Lista de imágenes de este producto.
+  /// Campo virtual (no crea columna). La FK está en ProductImage.productId.
+  /// Permite hacer: product.images para obtener las imágenes del producto
+  images ProductImage[]
+
+  /// Índice compuesto en [gender, categoryId] para acelerar consultas
+  /// filtradas por género y categoría (ej: "todos los productos de hombre en camisetas")
   @@index([gender, categoryId])
 }
 
-// De esta manera establecemos la relacion entre Product y ProductImage
+// --------------------------------------------------------------------------
+// ProductImage
+// --------------------------------------------------------------------------
+/// Imágenes asociadas a un producto.
+///
+/// Relaciones:
+///   - ProductImage N ←→ 1 Product (muchas imágenes pertenecen a UN producto)
+///
+/// Nota: usa autoincrement() en vez de uuid() para el id porque las imágenes
+/// se crean/eliminan frecuentemente y un entero secuencial es más eficiente.
 model ProductImage {
+  /// ID autoincremental (1, 2, 3...)
   id  Int    @id @default(autoincrement())
+  /// URL de la imagen (puede ser una ruta local o URL externa)
   url String
 
+  /// Relación N:1 con Product.
+  /// - FK: productId en esta tabla → apunta a Product.id
+  /// - Si se elimina el Product, las imágenes quedan huérfanas (considerar onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
+  /// Columna FK que almacena el ID del producto al que pertenece esta imagen
   productId String
 
+  /// Índice en productId para acelerar la consulta:
+  /// "dame todas las imágenes del producto X"
   @@index([productId])
 }
 
+// --------------------------------------------------------------------------
+// User
+// --------------------------------------------------------------------------
+/// Usuarios registrados en la tienda.
+///
+/// Relaciones:
+///   - User 1 ←→ 1 UserAddress (un usuario tiene UNA dirección, opcional)
+///
+/// El campo `address` es una relación 1:1 opcional (UserAddress?).
+/// El "?" significa que un usuario puede NO tener dirección registrada.
+/// La FK está del lado de UserAddress (UserAddress.userId), no aquí.
 model User {
-  id            String    @id @default(uuid())
+  id            String       @id @default(uuid())
   name          String
-  email         String    @unique
+  /// Email único - se usa para login
+  email         String       @unique
+  /// Fecha de verificación del email (null = no verificado)
   emailVerified DateTime?
+  /// Contraseña hasheada (nunca se almacena en texto plano)
   password      String
-  role          Role      @default(user)
+  /// Rol del usuario (admin o user). Por defecto: user
+  role          Role         @default(user)
+  /// URL de la imagen de perfil (opcional)
   image         String?
+
+  /// Relación 1:1 con UserAddress.
+  /// Campo virtual. La FK está en UserAddress.userId (con @unique para forzar 1:1).
+  /// El "?" indica que la dirección es opcional (el usuario puede no tener una).
+  /// Permite hacer: user.address para obtener la dirección del usuario
+  address UserAddress?
 }
 
-//modelo de Paises
+// --------------------------------------------------------------------------
+// Country
+// --------------------------------------------------------------------------
+/// Países disponibles para las direcciones de envío.
+///
+/// Relaciones:
+///   - Country 1 ←→ N UserAddress (un país tiene muchas direcciones)
+///
+/// Se usa para poblar el selector de países en el formulario de checkout.
 model Country {
   id   String @id @default(uuid())
+  /// Nombre del país (ej: "Colombia", "México", "España")
   name String
+
+  /// Relación 1:N → Lista de direcciones que tienen este país.
+  /// Campo virtual (no crea columna). La FK está en UserAddress.countryId.
+  UserAddress UserAddress[]
+}
+
+// --------------------------------------------------------------------------
+// UserAddress
+// --------------------------------------------------------------------------
+/// Dirección de envío de un usuario.
+///
+/// Relaciones:
+///   - UserAddress N ←→ 1 Country (cada dirección pertenece a UN país)
+///   - UserAddress 1 ←→ 1 User   (cada dirección pertenece a UN usuario)
+///
+/// Esta tabla es el "lado propietario" de ambas relaciones porque contiene
+/// las columnas FK (countryId y userId).
+///
+/// Nota sobre la relación 1:1 con User:
+///   userId tiene @unique, lo que convierte la relación N:1 en 1:1.
+///   Sin @unique sería: "un usuario puede tener MUCHAS direcciones" (1:N).
+///   Con @unique es: "un usuario puede tener SOLO UNA dirección" (1:1).
+model UserAddress {
+  id         String  @id @default(uuid())
+  firstName  String
+  lastName   String
+  /// Dirección principal (ej: "Calle 123 #45-67")
+  address    String
+  /// Dirección secundaria opcional (ej: "Apartamento 301")
+  address2   String?
+  postalCode String
+  phone      String
+
+  /// Relación N:1 con Country.
+  /// - FK: countryId en esta tabla → apunta a Country.id
+  /// - Permite hacer: userAddress.country para obtener el país
+  country   Country @relation(fields: [countryId], references: [id])
+  /// Columna FK que almacena el ID del país
+  countryId String
+
+  /// Relación 1:1 con User.
+  /// - FK: userId en esta tabla → apunta a User.id
+  /// - @unique en userId fuerza que sea 1:1 (un userId solo puede aparecer UNA vez)
+  /// - Permite hacer: userAddress.user para obtener el usuario
+  user   User   @relation(fields: [userId], references: [id])
+  /// Columna FK que almacena el ID del usuario.
+  /// @unique convierte esta relación de N:1 a 1:1
+  userId String @unique
 }
