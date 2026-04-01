@@ -1,6 +1,8 @@
 "use client"
 import { Country } from '@/interfaces';
+import { useAddressStore } from '@/store';
 import clsx from 'clsx';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 
@@ -22,7 +24,7 @@ interface Props {
 
 export const AddressForm = ({ countries }: Props) => {
 
-    const { formState: { isValid }, handleSubmit, control } = useForm<FormInputs>({
+    const { formState: { isValid }, handleSubmit, control, reset } = useForm<FormInputs>({
         defaultValues: {
             //TODO: Cargar info de la base de datos
             firstName: "",
@@ -37,10 +39,22 @@ export const AddressForm = ({ countries }: Props) => {
         }
     });
 
+    const setAddress = useAddressStore(state => state.setAddress)
+    const address = useAddressStore(state => state.address)
+
     //TODO: todo es requerido en el formulario menos dirección 2 y recordar dirección, hacer un schema correspondiente.
     const onSubmit = (data: FormInputs) => {
         console.log(data)
+        setAddress(data)
     }
+
+
+    useEffect(() => {
+        if (address.firstName) {
+            reset(address)
+        }
+    }, [address, reset])
+
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-2 sm:gap-5 sm:grid-cols-2">
