@@ -287,23 +287,18 @@ export const AddressForm = ({ countries }: Props) => {
                     <span>¿Recodar dirección?</span>
                 </div>
 
-                <div>
-                </div>
-                {
-                    error && (
-                        <p className="text-red-500">{error}</p>
-                    )
-                }
-                <div>
+                {/* Error message - spans full width */}
+                {error && (
+                    <p className="text-red-500 sm:col-span-2">{error}</p>
+                )}
+
+                {/* Submit button - spans full width */}
+                <div className="flex flex-col mb-2 sm:col-span-2 sm:mt-10">
                     <link
                         rel="stylesheet"
                         href="https://unpkg.com/@material-tailwind/html@latest/styles/material-tailwind.css"
                     />
-                </div>
-                <div></div>
-                <div className="flex flex-col mb-2 sm:mt-10">
                     <button
-                        // href="/checkout"
                         type='submit'
                         className={
                             clsx({
@@ -313,7 +308,7 @@ export const AddressForm = ({ countries }: Props) => {
                         }
                         disabled={!isValid}
                     >
-                        Siguiente.
+                        Siguiente
                     </button>
                 </div>
             </form>
