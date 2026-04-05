@@ -33,7 +33,8 @@ export const setUserAddress = async (address: Address, userId: string) => {
 
         return {
             ok: true,
-            address: newAddress?.address
+            address: newAddress?.address,
+            message: "Dirección guardada correctamente"
         }
     } catch (error) {
         console.error(error)
