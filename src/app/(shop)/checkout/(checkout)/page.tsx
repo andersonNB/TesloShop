@@ -1,13 +1,8 @@
 import { Title } from "@/components";
-import { initialData } from "@/seed/seed";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductsInCart } from "./ui/ProductsInCart";
 
-const productsInCart = [
-	initialData.products[0],
-	initialData.products[1],
-	initialData.products[2],
-];
+
 
 const CheckoutPage = () => {
 	return (
@@ -23,27 +18,7 @@ const CheckoutPage = () => {
 							Continúa comprando
 						</Link>
 						{/* Items */}
-						{productsInCart.map((product) => (
-							<div key={product.slug} className="flex mb-5 ">
-								<Image
-									src={`/products/${product.images[0]}`}
-									width={100}
-									height={100}
-									alt={product.title}
-									className="mr-5 rounded"
-									style={{
-										width: "100px",
-										height: "100px",
-									}}
-								/>
-								<div>
-									<p>{product.title}</p>
-									<p>{product.price}</p>
-									<p>${product.price * 3}</p>
-									<p className="font-bold" >Subtotal: ${product.price * product.inStock}</p>
-								</div>
-							</div>
-						))}
+						<ProductsInCart />
 					</div>
 
 					{/* Checkout - resumen de la compra */}
