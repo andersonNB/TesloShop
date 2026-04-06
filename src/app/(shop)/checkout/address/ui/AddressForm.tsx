@@ -1,7 +1,7 @@
 "use client"
 import { deleteUserAddress, setUserAddress } from '@/actions';
 import { ModalAddressForm } from '@/components';
-import { Country } from '@/interfaces';
+import { Address, Country } from '@/interfaces';
 import { useAddressStore } from '@/store';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
@@ -23,21 +23,23 @@ type FormInputs = {
 
 interface Props {
     countries: Country[]
+    userStoredAddress?: Partial<Address>
 }
 
-export const AddressForm = ({ countries }: Props) => {
+export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
+
+    console.log({ userStoredAddress })
 
     const { formState: { isValid }, handleSubmit, control, reset } = useForm<FormInputs>({
         defaultValues: {
-            //TODO: Cargar info de la base de datos
-            firstName: "",
-            lastName: "",
-            address: "",
-            address2: "",
-            postalCode: "",
-            city: "",
-            country: "",
-            phone: "",
+            firstName: userStoredAddress.firstName || "",
+            lastName: userStoredAddress.lastName || "",
+            address: userStoredAddress.address || "",
+            address2: userStoredAddress.address2 || "",
+            postalCode: userStoredAddress.postalCode || "",
+            city: userStoredAddress.city || "",
+            country: userStoredAddress.countryId || "",
+            phone: userStoredAddress.phone || "",
             rememberAddress: false
         }
     });
@@ -71,10 +73,10 @@ export const AddressForm = ({ countries }: Props) => {
 
 
     useEffect(() => {
-        if (address.firstName) {
+        if (!userStoredAddress) {
             reset(address)
         }
-    }, [address, reset])
+    }, [address, reset, userStoredAddress])
 
 
     return (

@@ -53,9 +53,9 @@ enum Size {
 /// Género/categoría de público objetivo del producto.
 /// Determina en qué sección de la tienda aparece el producto.
 enum Gender {
-  men    // Hombres
-  women  // Mujeres
-  kid    // Niños
+  men // Hombres
+  women // Mujeres
+  kid // Niños
   unisex // Unisex
 }
 
@@ -63,7 +63,7 @@ enum Gender {
 /// Controla los permisos y acceso a funcionalidades (ej: panel admin).
 enum Role {
   admin // Administrador - acceso total
-  user  // Usuario regular - solo compras
+  user // Usuario regular - solo compras
 }
 
 // ============================================================================
@@ -113,17 +113,17 @@ model Category {
 ///     - "references: [id]"    → la columna PK en la OTRA tabla (Category)
 ///     - Resultado: Product.categoryId apunta a Category.id
 model Product {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   description String
   /// Cantidad en inventario
   inStock     Int
   /// Precio del producto (valor por defecto: 0)
-  price       Float  @default(0)
+  price       Float    @default(0)
   /// Array de tallas disponibles (ej: [S, M, L]).
   /// En PostgreSQL se almacena como un array nativo de tipo Size[].
-  sizes       Size[] @default([])
+  sizes       Size[]   @default([])
   /// URL amigable del producto (ej: "camiseta-nike-azul"). Debe ser único.
-  slug        String @unique
+  slug        String   @unique
   /// Etiquetas para búsqueda y filtrado (ej: ["nike", "deporte", "azul"])
   tags        String[] @default([])
   title       String
@@ -188,16 +188,16 @@ model ProductImage {
 /// El "?" significa que un usuario puede NO tener dirección registrada.
 /// La FK está del lado de UserAddress (UserAddress.userId), no aquí.
 model User {
-  id            String       @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
   /// Email único - se usa para login
-  email         String       @unique
+  email         String    @unique
   /// Fecha de verificación del email (null = no verificado)
   emailVerified DateTime?
   /// Contraseña hasheada (nunca se almacena en texto plano)
   password      String
   /// Rol del usuario (admin o user). Por defecto: user
-  role          Role         @default(user)
+  role          Role      @default(user)
   /// URL de la imagen de perfil (opcional)
   image         String?
 
@@ -253,6 +253,7 @@ model UserAddress {
   address2   String?
   postalCode String
   phone      String
+  city       String
 
   /// Relación N:1 con Country.
   /// - FK: countryId en esta tabla → apunta a Country.id
