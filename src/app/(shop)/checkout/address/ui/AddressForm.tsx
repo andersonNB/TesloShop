@@ -2,11 +2,14 @@
 import { deleteUserAddress, setUserAddress } from '@/actions';
 import { ModalAddressForm } from '@/components';
 import { Address, Country } from '@/interfaces';
+import { addressFormSchema } from '@/schema/addressForm';
 import { useAddressStore } from '@/store';
+import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Control, Controller, useForm } from 'react-hook-form';
 
 
 type FormInputs = {
@@ -18,9 +21,40 @@ type FormInputs = {
     city: string;
     country: string;
     phone: string;
-    rememberAddress: boolean
+    rememberAddress?: boolean
 }
 
+// ── Componente reutilizable para campos de texto ──
+interface FormFieldProps {
+    name: keyof FormInputs;
+    label: string;
+    control: Control<FormInputs>;
+}
+
+const FormField = ({ name, label, control }: FormFieldProps) => (
+    <div className="flex flex-col mb-2">
+        <span>{label}</span>
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState }) => (
+                <>
+                    <input
+                        type="text"
+                        className="p-2 border rounded-md bg-gray-200"
+                        {...field}
+                        value={field.value as string ?? ""}
+                    />
+                    {fieldState?.error ? (
+                        <p className="text-red-500">{fieldState.error.message}</p>
+                    ) : null}
+                </>
+            )}
+        />
+    </div>
+)
+
+// ── Props del formulario ──
 interface Props {
     countries: Country[]
     userStoredAddress?: Partial<Address>
@@ -28,8 +62,8 @@ interface Props {
 
 export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
 
-
     const { formState: { isValid }, handleSubmit, control, reset } = useForm<FormInputs>({
+        resolver: zodResolver(addressFormSchema),
         defaultValues: {
             firstName: userStoredAddress.firstName || "",
             lastName: userStoredAddress.lastName || "",
@@ -47,33 +81,32 @@ export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
     const address = useAddressStore(state => state.address)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
+    const router = useRouter()
 
-    //TODO: todo es requerido en el formulario menos dirección 2 y recordar dirección, hacer un schema correspondiente.
-    //TODO: redirigir al /checkout en caso de que sea exitoso el guardado de la dirección
     const onSubmit = async (data: FormInputs) => {
-        console.log(data)
         setAddress(data)
         const { rememberAddress, ...restAddress } = data
 
         if (rememberAddress) {
             const response = await setUserAddress(restAddress, session!.user.id)
-            setError("")
-            setSuccess(response.message || "Dirección guardada correctamente")
+            if (response.ok) {
+                setError("")
+                setSuccess(response.message || "Dirección guardada correctamente")
+            } else {
+                setError(response.message || "No se pudo guardar la dirección")
+            }
         } else {
             const response = await deleteUserAddress(session!.user.id)
-            console.log("response: ", response)
             if (response.ok) {
                 setSuccess(response.message || "Dirección eliminada correctamente")
             } else {
                 setError(response.message || "No se pudo eliminar la dirección")
             }
         }
-
     }
 
-
     useEffect(() => {
-        if (!userStoredAddress) {
+        if (Object.keys(userStoredAddress).length === 0 && address.firstName) {
             reset(address)
         }
     }, [address, reset, userStoredAddress])
@@ -82,166 +115,39 @@ export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-2 sm:gap-5 sm:grid-cols-2">
-                <div className="flex flex-col mb-2">
-                    <span>Nombres</span>
-                    <Controller
-                        name="firstName"
-                        control={control}
-                        render={({ field, fieldState }) => {
-                            console.log("fieldState: ", fieldState)
-                            return (
 
-                                <>
-                                    <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
+                <FormField name="firstName" label="Nombres" control={control} />
+                <FormField name="lastName" label="Apellidos" control={control} />
+                <FormField name="address" label="Dirección" control={control} />
+                <FormField name="address2" label="Dirección 2 (opcional)" control={control} />
+                <FormField name="postalCode" label="Código postal" control={control} />
+                <FormField name="city" label="Ciudad" control={control} />
 
-
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-
-                                </>
-
-                            )
-                        }}
-
-
-                    />
-                </div>
-
-                <div className="flex flex-col mb-2">
-                    <span>Apellidos</span>
-                    <Controller
-                        name="lastName"
-                        control={control}
-                        render={({ field, fieldState }) => {
-                            return (
-                                <>
-                                    <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-                                </>
-                            )
-                        }}
-                    />
-                </div>
-
-                <div className="flex flex-col mb-2">
-                    <span>Dirección</span>
-                    <Controller
-                        name="address"
-                        control={control}
-                        render={({ field, fieldState }) => {
-                            return (
-                                <>
-                                    <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-                                </>
-                            )
-                        }}
-                    />
-                </div>
-
-                <div className="flex flex-col mb-2">
-                    <span>Dirección 2 (opcional)</span>
-                    <Controller
-                        name="address2"
-                        control={control}
-                        render={({ field, fieldState }) => {
-                            return (
-                                <>
-                                    <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-                                </>
-                            )
-                        }}
-                    />
-                </div>
-
-                <div className="flex flex-col mb-2">
-                    <span>Código postal</span>
-                    <Controller
-                        name="postalCode"
-                        control={control}
-                        render={({ field, fieldState }) => {
-                            return (
-                                <>
-                                    <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-                                </>
-                            )
-                        }}
-                    />
-                </div>
-
-                <div className="flex flex-col mb-2">
-                    <span>Ciudad</span>
-                    <Controller
-                        name="city"
-                        control={control}
-                        render={({ field, fieldState }) => {
-                            return (
-                                <>
-                                    <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-                                </>
-                            )
-                        }}
-                    />
-                </div>
-
+                {/* País — select especial, no usa FormField */}
                 <div className="flex flex-col mb-2">
                     <span>País</span>
                     <Controller
                         name="country"
                         control={control}
-                        render={({ field, fieldState }) => {
-                            return (
-                                <>
-                                    <select className="p-2 border rounded-md bg-gray-200" {...field}>
-                                        <option value="">[ Seleccione ]</option>
-                                        {
-                                            countries.map(country => (
-
-                                                <option key={country.id} value={country.id}>{country.name}</option>
-
-                                            ))
-                                        }
-                                    </select>
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-                                </>
-                            )
-                        }}
+                        render={({ field, fieldState }) => (
+                            <>
+                                <select className="p-2 border rounded-md bg-gray-200" {...field}>
+                                    <option value="">[ Seleccione ]</option>
+                                    {countries.map(country => (
+                                        <option key={country.id} value={country.id}>{country.name}</option>
+                                    ))}
+                                </select>
+                                {fieldState?.error ? (
+                                    <p className="text-red-500">{fieldState.error.message}</p>
+                                ) : null}
+                            </>
+                        )}
                     />
                 </div>
 
-                <div className="flex flex-col mb-2">
-                    <span>Teléfono</span>
-                    <Controller
-                        name="phone"
-                        control={control}
-                        render={({ field, fieldState }) => {
-                            return (
-                                <>
-                                    <input type="text" className="p-2 border rounded-md bg-gray-200" {...field} />
-                                    {fieldState?.error && (
-                                        <p className="text-red-500">{fieldState?.error.message}</p>
-                                    )}
-                                </>
-                            )
-                        }}
-                    />
-                </div>
+                <FormField name="phone" label="Teléfono" control={control} />
+
+                {/* Checkbox — Recordar dirección */}
                 <div className="flex items-center">
                     <label
                         className="relative flex cursor-pointer items-center rounded-full p-3"
@@ -251,22 +157,15 @@ export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
                         <Controller
                             name="rememberAddress"
                             control={control}
-                            render={({ field, fieldState }) => {
-                                return (
-                                    <>
-                                        <input
-                                            type="checkbox"
-                                            className=" border-gray-500 before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-blue-500 checked:bg-blue-500 checked:before:bg-blue-500 hover:before:opacity-10"
-                                            id="checkbox"
-                                            checked={field.value}
-                                            onChange={field.onChange}
-                                        />
-                                        {fieldState?.error && (
-                                            <p className="text-red-500">{fieldState?.error.message}</p>
-                                        )}
-                                    </>
-                                )
-                            }}
+                            render={({ field }) => (
+                                <input
+                                    type="checkbox"
+                                    className="border-gray-500 before:content-[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-blue-500 checked:bg-blue-500 checked:before:bg-blue-500 hover:before:opacity-10"
+                                    id="checkbox"
+                                    checked={!!field.value}
+                                    onChange={field.onChange}
+                                />
+                            )}
                         />
                         <div className="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
                             <svg
@@ -286,20 +185,16 @@ export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
                         </div>
                     </label>
 
-                    <span>¿Recodar dirección?</span>
+                    <span>¿Recordar dirección?</span>
                 </div>
 
-                {/* Error message - spans full width */}
-                {error && (
+                {/* Error message */}
+                {error.length > 0 ? (
                     <p className="text-red-500 sm:col-span-2">{error}</p>
-                )}
+                ) : null}
 
-                {/* Submit button - spans full width */}
+                {/* Submit button */}
                 <div className="flex flex-col mb-2 sm:col-span-2 sm:mt-10">
-                    <link
-                        rel="stylesheet"
-                        href="https://unpkg.com/@material-tailwind/html@latest/styles/material-tailwind.css"
-                    />
                     <button
                         type='submit'
                         className={
@@ -308,7 +203,6 @@ export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
                                 "btn-disabled flex w-full sm:w-1/2 justify-center ": !isValid
                             })
                         }
-                        disabled={!isValid}
                     >
                         Siguiente
                     </button>
@@ -318,7 +212,10 @@ export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
             <ModalAddressForm
                 message={success}
                 isOpen={!!success}
-                onClose={() => setSuccess("")}
+                onClose={() => {
+                    setSuccess("")
+                    router.push("/checkout")
+                }}
             />
         </>
     )

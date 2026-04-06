@@ -9,15 +9,14 @@ import { Address } from "@/interfaces";
 
 export default async function AddressPage() {
 
-	const countries = await getCountries()
-
-	const session = await auth()
-
+	const [countries, session] = await Promise.all([
+		getCountries(),
+		auth()
+	])
 
 	if (!session?.user) {
 		return redirect("/auth/login?from=/checkout/address")
 	}
-
 
 	const userAddress = await getUserAddress(session.user.id)
 

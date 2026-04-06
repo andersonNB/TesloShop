@@ -2,6 +2,7 @@
 
 import { Address } from "@/interfaces"
 import { prisma } from "@/lib/prisma"
+import { addressFormSchema } from "@/schema/addressForm"
 
 
 /**
@@ -26,6 +27,15 @@ import { prisma } from "@/lib/prisma"
  * }
  */
 export const setUserAddress = async (address: Address, userId: string) => {
+
+    const parsed = addressFormSchema.safeParse(address)
+
+    if (!parsed.success) {
+        return {
+            ok: false,
+            message: parsed.error.issues[0].message
+        }
+    }
 
     try {
 
