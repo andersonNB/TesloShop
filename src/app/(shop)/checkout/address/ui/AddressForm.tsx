@@ -28,7 +28,6 @@ interface Props {
 
 export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
 
-    console.log({ userStoredAddress })
 
     const { formState: { isValid }, handleSubmit, control, reset } = useForm<FormInputs>({
         defaultValues: {
@@ -50,6 +49,7 @@ export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
     const [success, setSuccess] = useState("")
 
     //TODO: todo es requerido en el formulario menos dirección 2 y recordar dirección, hacer un schema correspondiente.
+    //TODO: redirigir al /checkout en caso de que sea exitoso el guardado de la dirección
     const onSubmit = async (data: FormInputs) => {
         console.log(data)
         setAddress(data)

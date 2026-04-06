@@ -253,7 +253,7 @@ model UserAddress {
   address2   String?
   postalCode String
   phone      String
-  city       String
+  city       String?
 
   /// Relación N:1 con Country.
   /// - FK: countryId en esta tabla → apunta a Country.id
