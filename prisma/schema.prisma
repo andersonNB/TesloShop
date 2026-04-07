@@ -141,7 +141,12 @@ model Product {
   /// Relación 1:N → Lista de imágenes de este producto.
   /// Campo virtual (no crea columna). La FK está en ProductImage.productId.
   /// Permite hacer: product.images para obtener las imágenes del producto
-  images ProductImage[]
+  images     ProductImage[]
+
+  /// Relación 1:N → Lista de items de órdenes que incluyen este producto.
+  /// Campo virtual (no crea columna). La FK está en OrderItem.productId.
+  /// Permite hacer: product.orderItems para saber en qué órdenes fue comprado
+  orderItems OrderItem[]
 
   /// Índice compuesto en [gender, categoryId] para acelerar consultas
   /// filtradas por género y categoría (ej: "todos los productos de hombre en camisetas")
@@ -183,6 +188,7 @@ model ProductImage {
 ///
 /// Relaciones:
 ///   - User 1 ←→ 1 UserAddress (un usuario tiene UNA dirección, opcional)
+///   - User 1 ←→ N Order       (un usuario tiene MUCHAS órdenes de compra)
 ///
 /// El campo `address` es una relación 1:1 opcional (UserAddress?).
 /// El "?" significa que un usuario puede NO tener dirección registrada.
@@ -206,6 +212,11 @@ model User {
   /// El "?" indica que la dirección es opcional (el usuario puede no tener una).
   /// Permite hacer: user.address para obtener la dirección del usuario
   address UserAddress?
+
+  /// Relación 1:N → Lista de órdenes de compra de este usuario.
+  /// Campo virtual (no crea columna). La FK está en Order.userId.
+  /// Permite hacer: user.orders para obtener todas las órdenes del usuario
+  orders  Order[]
 }
 
 // --------------------------------------------------------------------------
@@ -214,7 +225,8 @@ model User {
 /// Países disponibles para las direcciones de envío.
 ///
 /// Relaciones:
-///   - Country 1 ←→ N UserAddress (un país tiene muchas direcciones)
+///   - Country 1 ←→ N UserAddress    (un país tiene muchas direcciones de usuario)
+///   - Country 1 ←→ N OrderAddress   (un país tiene muchas direcciones de orden)
 ///
 /// Se usa para poblar el selector de países en el formulario de checkout.
 model Country {
@@ -222,9 +234,13 @@ model Country {
   /// Nombre del país (ej: "Colombia", "México", "España")
   name String
 
-  /// Relación 1:N → Lista de direcciones que tienen este país.
+  /// Relación 1:N → Lista de direcciones de usuario que tienen este país.
   /// Campo virtual (no crea columna). La FK está en UserAddress.countryId.
-  UserAddress UserAddress[]
+  UserAddress    UserAddress[]
+
+  /// Relación 1:N → Lista de direcciones de orden que tienen este país.
+  /// Campo virtual (no crea columna). La FK está en OrderAddress.countryId.
+  orderAddresses OrderAddress[]
 }
 
 // --------------------------------------------------------------------------
@@ -270,4 +286,147 @@ model UserAddress {
   /// Columna FK que almacena el ID del usuario.
   /// @unique convierte esta relación de N:1 a 1:1
   userId String @unique
+}
+
+// --------------------------------------------------------------------------
+// Order
+// --------------------------------------------------------------------------
+/// Órdenes de compra realizadas por los usuarios.
+///
+/// Relaciones:
+///   - Order N ←→ 1 User          (cada orden pertenece a UN usuario)
+///   - Order 1 ←→ N OrderItem     (una orden tiene MUCHOS items/productos)
+///   - Order 1 ←→ 1 OrderAddress  (cada orden tiene UNA dirección de envío)
+///
+/// Flujo de una orden:
+///   1. El usuario hace checkout → se crea la Order con isPaid = false
+///   2. El usuario paga → isPaid = true y se registra paidAt
+///   3. updatedAt se actualiza automáticamente con cada cambio (@updatedAt)
+model Order {
+  /// Identificador único de la orden (UUID generado automáticamente)
+  id           String    @id @default(uuid())
+  /// Subtotal de la orden (suma de precios × cantidades, sin impuestos)
+  subTotal     Float
+  /// Monto de impuestos aplicados a la orden
+  tax          Float
+  /// Total final de la orden (subTotal + tax)
+  total        Float
+  /// Cantidad total de artículos en la orden (suma de las cantidades de cada item)
+  itemsInOrder Int
+  /// Indica si la orden ha sido pagada. Por defecto: false (pendiente de pago)
+  isPaid       Boolean   @default(false)
+  /// Fecha y hora en que se realizó el pago (null = aún no pagada)
+  paidAt       DateTime?
+  /// Fecha de creación de la orden (se asigna automáticamente)
+  createdAt    DateTime  @default(now())
+  /// Fecha de última actualización (se actualiza automáticamente con cada cambio)
+  updatedAt    DateTime  @updatedAt
+
+  /// Relación N:1 con User.
+  /// - FK: userId en esta tabla → apunta a User.id
+  /// - Permite hacer: order.user para obtener el usuario que realizó la orden
+  user           User          @relation(fields: [userId], references: [id])
+  /// Columna FK que almacena el ID del usuario que realizó la orden
+  userId         String
+
+  /// Relación 1:N → Lista de items/productos incluidos en esta orden.
+  /// Campo virtual (no crea columna). La FK está en OrderItem.orderId.
+  /// Permite hacer: order.orderItems para obtener los productos de la orden
+  orderItems     OrderItem[]
+
+  /// Relación 1:1 con OrderAddress (dirección de envío de esta orden).
+  /// Campo virtual. La FK está en OrderAddress.orderId (con @unique para forzar 1:1).
+  /// El "?" indica que la dirección podría no haberse registrado aún.
+  /// Permite hacer: order.orderAddresses para obtener la dirección de envío
+  orderAddresses OrderAddress?
+}
+
+// --------------------------------------------------------------------------
+// OrderItem
+// --------------------------------------------------------------------------
+/// Items individuales dentro de una orden de compra.
+/// Cada registro representa UN producto en UNA talla con su cantidad y precio.
+///
+/// Relaciones:
+///   - OrderItem N ←→ 1 Order   (muchos items pertenecen a UNA orden)
+///   - OrderItem N ←→ 1 Product (muchos items referencian a UN producto)
+///
+/// Nota: Se guarda el precio al momento de la compra (price) porque el precio
+/// del producto puede cambiar en el futuro, pero la orden debe mantener
+/// el precio con el que se compró.
+model OrderItem {
+  /// Identificador único del item (UUID generado automáticamente)
+  id       String @id @default(uuid())
+  /// Cantidad de unidades de este producto en la orden
+  quantity Int
+  /// Precio unitario del producto AL MOMENTO de la compra
+  /// (se congela aquí para que cambios futuros en Product.price no afecten órdenes pasadas)
+  price    Float
+  /// Talla seleccionada para este producto (S, M, L, etc.)
+  size     Size
+
+  /// Relación N:1 con Order.
+  /// - FK: orderId en esta tabla → apunta a Order.id
+  /// - Permite hacer: orderItem.order para obtener la orden a la que pertenece
+  order     Order   @relation(fields: [orderId], references: [id])
+  /// Columna FK que almacena el ID de la orden
+  orderId   String
+
+  /// Relación N:1 con Product.
+  /// - FK: productId en esta tabla → apunta a Product.id
+  /// - Permite hacer: orderItem.product para obtener los datos del producto
+  product   Product @relation(fields: [productId], references: [id])
+  /// Columna FK que almacena el ID del producto
+  productId String
+}
+
+// --------------------------------------------------------------------------
+// OrderAddress
+// --------------------------------------------------------------------------
+/// Dirección de envío asociada a una orden de compra.
+///
+/// Relaciones:
+///   - OrderAddress 1 ←→ 1 Order   (cada dirección pertenece a UNA orden)
+///   - OrderAddress N ←→ 1 Country (cada dirección pertenece a UN país)
+///
+/// ¿Por qué existe separada de UserAddress?
+///   Porque el usuario puede cambiar su dirección después de hacer una orden.
+///   Esta tabla "congela" la dirección al momento de la compra, igual que
+///   OrderItem congela el precio. Así la orden siempre refleja los datos
+///   exactos con los que se realizó.
+///
+/// La relación con Order es 1:1 gracias a @unique en orderId.
+model OrderAddress {
+  /// Identificador único de la dirección de orden (UUID generado automáticamente)
+  id         String  @id @default(uuid())
+  /// Nombre del destinatario
+  firstName  String
+  /// Apellido del destinatario
+  lastName   String
+  /// Dirección principal de envío (ej: "Av. Reforma 123")
+  address    String
+  /// Dirección secundaria opcional (ej: "Piso 4, Depto 8")
+  address2   String?
+  /// Código postal de la dirección
+  postalCode String
+  /// Ciudad de destino (opcional)
+  city       String?
+  /// Teléfono de contacto del destinatario
+  phone      String
+
+  /// Relación 1:1 con Order.
+  /// - FK: orderId en esta tabla → apunta a Order.id
+  /// - @unique en orderId fuerza que sea 1:1 (una orden solo puede tener UNA dirección)
+  /// - Permite hacer: orderAddress.order para obtener la orden asociada
+  order     Order   @relation(fields: [orderId], references: [id])
+  /// Columna FK que almacena el ID de la orden.
+  /// @unique convierte esta relación de N:1 a 1:1
+  orderId   String  @unique
+
+  /// Relación N:1 con Country.
+  /// - FK: countryId en esta tabla → apunta a Country.id
+  /// - Permite hacer: orderAddress.country para obtener el país de envío
+  country   Country @relation(fields: [countryId], references: [id])
+  /// Columna FK que almacena el ID del país de envío
+  countryId String
 }

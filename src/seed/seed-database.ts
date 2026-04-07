@@ -8,6 +8,9 @@ async function main() {
 
     //1. Borrando datos anteriores
     await Promise.all([
+        prisma.orderItem.deleteMany(),
+        prisma.orderAddress.deleteMany(),
+        prisma.order.deleteMany(),
         prisma.userAddress.deleteMany(),
         prisma.productImage.deleteMany(),
         prisma.product.deleteMany(),

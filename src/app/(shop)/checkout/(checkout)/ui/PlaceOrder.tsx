@@ -2,7 +2,9 @@
 
 import { OrderSummary } from "@/app/(shop)/cart/ui/OrderSummary"
 import { useAddressStore } from "@/store"
-import { useSyncExternalStore } from "react"
+import { useCartStore } from "@/utils"
+import clsx from "clsx"
+import { useState, useSyncExternalStore } from "react"
 
 const emptySubscribe = () => () => { } // No necesitamos suscribirnos a nada, nunca cambia
 
@@ -17,8 +19,24 @@ function useHydrated() {
 export const PlaceOrder = () => {
 
     const loaded = useHydrated()
-
     const address = useAddressStore(state => state.address);
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false)
+
+    const cart = useCartStore(state => state.cart)
+
+    const onPlaceOrder = async () => {
+        setIsPlacingOrder(true)
+
+        const productsToOrder = cart.map(product => ({
+            productId: product.id,
+            quantity: product.quantity,
+            size: product.size
+        }))
+
+        console.log(productsToOrder)
+
+        setIsPlacingOrder(false)
+    }
 
 
     if (!loaded) return <div>Cargando...</div>
@@ -52,9 +70,17 @@ export const PlaceOrder = () => {
                     </span>
                 </p>
 
+
+                <p className="text-red-500" >Error de creación</p>
+
                 <button
-                    className="flex btn-primary justify-center "
-                    onClick={() => { }}
+                    className={
+                        clsx({
+                            "btn-primary": !isPlacingOrder,
+                            "btn-disabled": isPlacingOrder,
+                        })
+                    }
+                    onClick={onPlaceOrder}
                 >
                     Colocar orden
                 </button>
