@@ -1,5 +1,6 @@
 "use client"
 
+import { placeOrder } from "@/actions"
 import { OrderSummary } from "@/app/(shop)/cart/ui/OrderSummary"
 import { useAddressStore } from "@/store"
 import { useCartStore } from "@/utils"
@@ -33,7 +34,7 @@ export const PlaceOrder = () => {
             size: product.size
         }))
 
-        console.log(productsToOrder)
+        await placeOrder(productsToOrder, address)
 
         setIsPlacingOrder(false)
     }
