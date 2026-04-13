@@ -43,7 +43,7 @@ export const placeOrder = async (productIds: ProductToOrder[], address: Address)
     const { subTotal, tax, total } = productIds.reduce((totals, item) => {
         const product = products.find(p => p.id === item.productId)
 
-        if (!product) throw new Error(`Producto no encontrado: ${item.productId}`);
+        if (!product) throw new Error(`Producto no encontrado : ${item.productId}`);
 
         const subTotal = totals.subTotal + (product.price * item.quantity)
         const tax = totals.tax + (product.price * item.quantity * 0.15)
