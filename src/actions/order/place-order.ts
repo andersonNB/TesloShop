@@ -54,51 +54,104 @@ export const placeOrder = async (productIds: ProductToOrder[], address: Address)
 
 
     // Crear la transacción de base de datos
-    await prisma.$transaction(async (tx) => {
+    try {
+        const prismaTx = await prisma.$transaction(async (tx) => {
 
-        // 1. Actualizar el stock de los productos
-        // 2. Crear la orden - Encabezada - Detalles
-        const order = await tx.order.create({
-            data: {
-                userId: userId,
-                itemsInOrder: itemsInOrder,
-                subTotal: subTotal,
-                tax: tax,
-                total: total,
-                orderItems: {
-                    createMany: {
-                        data: productIds.map(p => ({
-                            productId: p.productId,
-                            quantity: p.quantity,
-                            size: p.size,
-                            price: products.find(pr => pr.id === p.productId)?.price || 0
-                        }))
+            // 1. Actualizar el stock de los productos
+
+            const updatedProductsPromises = products.map((product) => {
+                //Acumular la cantidad de productos
+                const productQuantity = productIds.filter(
+                    p => p.productId === product.id
+                ).reduce((acc, item) => acc + item.quantity, 0)
+
+
+                if (productQuantity === 0) {
+                    throw new Error(`${product.id} no tiene cantidad definida`)
+                }
+
+                return tx.product.update({
+                    where: {
+                        id: product.id
+                    },
+                    data: {
+                        //inStock: product.inStock - productQuantity esto no se debe hacer porque puede haber race condition
+                        inStock: {
+                            decrement: productQuantity
+                        }
+                    }
+                })
+            })
+
+            const updatedProducts = await Promise.all(updatedProductsPromises)
+
+            //Verificar valores negativos en las existencia = no hay stock
+            updatedProducts.forEach(product => {
+                if (product.inStock < 0) {
+                    throw new Error(`No hay stock suficiente para el producto ${product.title}`)
+                }
+            })
+
+            // 2. Crear la orden - Encabezada - Detalles
+            const order = await tx.order.create({
+                data: {
+                    userId: userId,
+                    itemsInOrder: itemsInOrder,
+                    subTotal: subTotal,
+                    tax: tax,
+                    total: total,
+                    orderItems: {
+                        createMany: {
+                            data: productIds.map(p => ({
+                                productId: p.productId,
+                                quantity: p.quantity,
+                                size: p.size,
+                                price: products.find(pr => pr.id === p.productId)?.price || 0
+                            }))
+                        }
                     }
                 }
-            }
-        })
+            })
 
 
-        // 3. Crear la dirección de la orden
+            // 3. Crear la dirección de la orden
 
-        const orderAddress = await tx.orderAddress.create({
-            data: {
-                firstName: address.firstName,
-                lastName: address.lastName,
-                address: address.address,
-                address2: address.address2,
-                postalCode: address.postalCode,
-                city: address.city,
-                countryId: address.country,
-                phone: address.phone,
-                orderId: order.id
+            const orderAddress = await tx.orderAddress.create({
+                data: {
+                    firstName: address.firstName,
+                    lastName: address.lastName,
+                    address: address.address,
+                    address2: address.address2,
+                    postalCode: address.postalCode,
+                    city: address.city,
+                    countryId: address.country,
+                    phone: address.phone,
+                    orderId: order.id
+                }
+            })
+
+            return {
+                order,
+                updatedProducts,
+                orderAddress: orderAddress
             }
         })
 
         return {
-            order,
-            updatedProducts: [],
-            orderAddress: orderAddress
+            ok: true,
+            order: prismaTx.order,
+            prismaTx
         }
-    })
+    } catch (error: unknown) {
+
+
+        const message = error instanceof Error
+            ? error.message
+            : "Error desconocido"
+
+        return {
+            ok: false,
+            message: `Error al crear la orden ${message} `
+        }
+    }
 }

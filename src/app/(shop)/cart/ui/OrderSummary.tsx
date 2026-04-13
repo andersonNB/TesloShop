@@ -1,5 +1,6 @@
 "use client"
-import { currencyFormat, useCartStore } from "@/utils"
+import { useCartStore } from "@/store"
+import { currencyFormat } from "@/utils"
 import { useEffect, useRef, useState } from "react"
 
 export const OrderSummary = () => {

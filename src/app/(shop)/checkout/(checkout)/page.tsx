@@ -1,11 +1,24 @@
+"use client"
 import { Title } from "@/components";
 import Link from "next/link";
 import { ProductsInCart } from "./ui/ProductsInCart";
 import { PlaceOrder } from "./ui/PlaceOrder";
+import { useCartStore } from "@/store";
+import { useRouter } from "next/navigation";
 
 
 
 const CheckoutPage = () => {
+
+	const cart = useCartStore(state => state.cart)
+	const router = useRouter()
+
+
+	if (cart.length === 0) {
+		return router.replace('/')
+	}
+
+
 	return (
 		<div className="flex justify-center items-start min-h-full py-0 px-10 sm:px-0">
 			<div className="flex flex-col w-full max-w-[1000px]">

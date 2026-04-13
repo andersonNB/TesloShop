@@ -2,9 +2,9 @@
 
 import { placeOrder } from "@/actions"
 import { OrderSummary } from "@/app/(shop)/cart/ui/OrderSummary"
-import { useAddressStore } from "@/store"
-import { useCartStore } from "@/utils"
+import { useAddressStore, useCartStore } from "@/store"
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 import { useState, useSyncExternalStore } from "react"
 
 const emptySubscribe = () => () => { } // No necesitamos suscribirnos a nada, nunca cambia
@@ -21,9 +21,12 @@ export const PlaceOrder = () => {
 
     const loaded = useHydrated()
     const address = useAddressStore(state => state.address);
+    const [errorMessage, setErrorMessage] = useState('')
     const [isPlacingOrder, setIsPlacingOrder] = useState(false)
+    const router = useRouter()
 
     const cart = useCartStore(state => state.cart)
+    const clearCart = useCartStore(state => state.clearCart)
 
     const onPlaceOrder = async () => {
         setIsPlacingOrder(true)
@@ -34,9 +37,18 @@ export const PlaceOrder = () => {
             size: product.size
         }))
 
-        await placeOrder(productsToOrder, address)
+        const res = await placeOrder(productsToOrder, address)
 
-        setIsPlacingOrder(false)
+        if (!res.ok) {
+            setIsPlacingOrder(false)
+            setErrorMessage(res.message ?? "Error al crear la orden")
+            return
+        }
+
+        //Si todo salio bien, limpiar el carrito
+        clearCart()
+        router.replace(`/orders/${res.order?.id}`)
+
     }
 
 
@@ -72,7 +84,7 @@ export const PlaceOrder = () => {
                 </p>
 
 
-                <p className="text-red-500" >Error de creación</p>
+                <p className="text-red-500" >{errorMessage}</p>
 
                 <button
                     className={
