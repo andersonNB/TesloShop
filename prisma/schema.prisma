@@ -141,7 +141,7 @@ model Product {
   /// Relación 1:N → Lista de imágenes de este producto.
   /// Campo virtual (no crea columna). La FK está en ProductImage.productId.
   /// Permite hacer: product.images para obtener las imágenes del producto
-  images     ProductImage[]
+  images ProductImage[]
 
   /// Relación 1:N → Lista de items de órdenes que incluyen este producto.
   /// Campo virtual (no crea columna). La FK está en OrderItem.productId.
@@ -216,7 +216,7 @@ model User {
   /// Relación 1:N → Lista de órdenes de compra de este usuario.
   /// Campo virtual (no crea columna). La FK está en Order.userId.
   /// Permite hacer: user.orders para obtener todas las órdenes del usuario
-  orders  Order[]
+  orders Order[]
 }
 
 // --------------------------------------------------------------------------
@@ -236,7 +236,7 @@ model Country {
 
   /// Relación 1:N → Lista de direcciones de usuario que tienen este país.
   /// Campo virtual (no crea columna). La FK está en UserAddress.countryId.
-  UserAddress    UserAddress[]
+  UserAddress UserAddress[]
 
   /// Relación 1:N → Lista de direcciones de orden que tienen este país.
   /// Campo virtual (no crea columna). La FK está en OrderAddress.countryId.
@@ -325,20 +325,22 @@ model Order {
   /// Relación N:1 con User.
   /// - FK: userId en esta tabla → apunta a User.id
   /// - Permite hacer: order.user para obtener el usuario que realizó la orden
-  user           User          @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
   /// Columna FK que almacena el ID del usuario que realizó la orden
-  userId         String
+  userId String
 
   /// Relación 1:N → Lista de items/productos incluidos en esta orden.
   /// Campo virtual (no crea columna). La FK está en OrderItem.orderId.
   /// Permite hacer: order.orderItems para obtener los productos de la orden
-  orderItems     OrderItem[]
+  orderItems OrderItem[]
 
   /// Relación 1:1 con OrderAddress (dirección de envío de esta orden).
   /// Campo virtual. La FK está en OrderAddress.orderId (con @unique para forzar 1:1).
   /// El "?" indica que la dirección podría no haberse registrado aún.
   /// Permite hacer: order.orderAddresses para obtener la dirección de envío
   orderAddresses OrderAddress?
+
+  transactionId String?
 }
 
 // --------------------------------------------------------------------------
@@ -368,9 +370,9 @@ model OrderItem {
   /// Relación N:1 con Order.
   /// - FK: orderId en esta tabla → apunta a Order.id
   /// - Permite hacer: orderItem.order para obtener la orden a la que pertenece
-  order     Order   @relation(fields: [orderId], references: [id])
+  order   Order  @relation(fields: [orderId], references: [id])
   /// Columna FK que almacena el ID de la orden
-  orderId   String
+  orderId String
 
   /// Relación N:1 con Product.
   /// - FK: productId en esta tabla → apunta a Product.id
@@ -418,10 +420,10 @@ model OrderAddress {
   /// - FK: orderId en esta tabla → apunta a Order.id
   /// - @unique en orderId fuerza que sea 1:1 (una orden solo puede tener UNA dirección)
   /// - Permite hacer: orderAddress.order para obtener la orden asociada
-  order     Order   @relation(fields: [orderId], references: [id])
+  order   Order  @relation(fields: [orderId], references: [id])
   /// Columna FK que almacena el ID de la orden.
   /// @unique convierte esta relación de N:1 a 1:1
-  orderId   String  @unique
+  orderId String @unique
 
   /// Relación N:1 con Country.
   /// - FK: countryId en esta tabla → apunta a Country.id
