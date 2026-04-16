@@ -1,5 +1,5 @@
 import { getOrderById } from "@/actions";
-import { Title } from "@/components";
+import { PayPalButton, Title } from "@/components";
 import { currencyFormat } from "@/utils";
 import clsx from "clsx";
 import Image from "next/image";
@@ -18,9 +18,6 @@ const OrderPage = async ({ params }: Props) => {
 
 
 	const { order, address, items } = await getOrderById(id)
-
-
-	console.log({ order, address, items })
 
 
 	return (
@@ -110,6 +107,8 @@ const OrderPage = async ({ params }: Props) => {
 								<IoCardOutline size={30} />
 								<span className="mx-2">{order?.isPaid ? "Pagada" : "Pendiente de pago"}</span>
 							</div>
+
+							<PayPalButton />
 						</div>
 					</div>
 				</div>
