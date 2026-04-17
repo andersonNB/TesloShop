@@ -1,45 +1,80 @@
 "use client"
-import { OnCompleteData, OnErrorData, OnApproveDataOneTimePayments, OnCancelDataOneTimePayments, PayPalOneTimePaymentButton, usePayPalOneTimePaymentSession } from "@paypal/react-paypal-js/sdk-v6";
+import { createPayPalOrder, paypalCheckPayment } from "@/actions";
+import {
+    OnApproveDataOneTimePayments,
+    OnCancelDataOneTimePayments,
+    OnCompleteData,
+    OnErrorData,
+    PayPalOneTimePaymentButton,
+} from "@paypal/react-paypal-js/sdk-v6";
 
-export const PayPalButton = () => {
+interface Props {
+    orderId: string;
+    isPaid: boolean;
+}
 
-    const { isPending, error } = usePayPalOneTimePaymentSession({
-        createOrder: async () => {
-            const { orderId } = await Promise.resolve({ orderId: "123" });
-            return { orderId };
-        },
-        presentationMode: "auto",
-        //@ts-expect-error beta paypal
-        onApprove: (data: OnApproveDataOneTimePayments) =>
-            console.log("Approved:", data),
-        onCancel: (data: OnCancelDataOneTimePayments) =>
-            console.log("Cancelled:", data),
-        onError: (data: OnErrorData) => console.error(data),
-        onComplete: (data: OnCompleteData) =>
-            console.log("Payment session complete", data),
-    });
+/**
+ * Botón de pago de PayPal para una orden específica.
+ *
+ * Flujo del pago:
+ *  1. El usuario hace clic en el botón de PayPal
+ *  2. Se crea una orden en PayPal (createOrder) usando el total de nuestra BD
+ *  3. PayPal muestra su ventana de pago y el usuario aprueba
+ *  4. onApprove se ejecuta → verificamos el pago con PayPal y actualizamos la BD
+ *
+ * @param orderId - El ID de la orden en nuestra base de datos.
+ * @param isPaid - Si la orden ya fue pagada (para no mostrar el botón).
+ */
+export const PayPalButton = ({ orderId, isPaid }: Props) => {
 
-    if (isPending) return <div className="animate-pulse">
-        <div className="w-3/6 h-10 bg-gray-200 rounded" />
-    </div>
-    if (error) return <div>Error: {error.message}</div>
+    if (isPaid) return null;
+
+    /**
+     * Callback que PayPal llama cuando el usuario hace clic en el botón.
+     * Crea la orden en PayPal con el monto correcto desde nuestra BD.
+     */
+    const createOrder = async (): Promise<{ orderId: string }> => {
+        const result = await createPayPalOrder(orderId);
+
+        if (!result.ok || !result.transactionId) {
+            throw new Error(result.message ?? "Error al crear la orden de PayPal");
+        }
+
+        return { orderId: result.transactionId };
+    }
+
+    /**
+     * Callback que PayPal llama cuando el usuario aprueba el pago.
+     * Verificamos el pago con PayPal y actualizamos la orden en la BD.
+     */
+    const onApprove = async (data: OnApproveDataOneTimePayments) => {
+        const { orderId: paypalOrderId } = data;
+
+        const result = await paypalCheckPayment(paypalOrderId);
+
+        if (!result.ok) {
+            console.error("Error al verificar pago:", result.message);
+        }
+    }
+
+
 
     return (
-        <PayPalOneTimePaymentButton
-            //@ts-expect-error beta paypal
-            createOrder={async () => {
-                const response = await Promise.resolve({ orderId: "123" });
-                return response.orderId
-            }}
-            onApprove={async ({ orderId }: OnApproveDataOneTimePayments) => {
-                await fetch(`/api/capture/${orderId}`, { method: "POST" });
-                console.log("Payment approved!", orderId);
-            }}
-            onCancel={(data: OnCancelDataOneTimePayments) =>
-                console.log("Payment cancelled", data)
-            }
-            onError={(data: OnErrorData) => console.error("Payment error:", data)}
-            onComplete={(data: OnCompleteData) => console.log("Payment Flow Completed", data)}
-        />
+        <div className="relative z-0">
+            <PayPalOneTimePaymentButton
+                presentationMode="auto"
+                createOrder={createOrder}
+                onApprove={onApprove}
+                onCancel={(data: OnCancelDataOneTimePayments) =>
+                    console.log("Pago cancelado", data)
+                }
+                onError={(data: OnErrorData) =>
+                    console.error("Error en el pago:", data)
+                }
+                onComplete={(data: OnCompleteData) =>
+                    console.log("Flujo de pago completado", data)
+                }
+            />
+        </div>
     )
 }

@@ -108,7 +108,7 @@ const OrderPage = async ({ params }: Props) => {
 								<span className="mx-2">{order?.isPaid ? "Pagada" : "Pendiente de pago"}</span>
 							</div>
 
-							<PayPalButton />
+							<PayPalButton orderId={id} isPaid={order?.isPaid ?? false} />
 						</div>
 					</div>
 				</div>
