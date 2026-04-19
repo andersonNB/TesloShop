@@ -27,7 +27,7 @@ const PAYPAL_ORDERS_URL = `${PAYPAL_API}/v2/checkout/orders`;
  * para generar un access_token de corta duración.
  *
  * @returns El access token como string.
- * @throws Error si las credenciales no están configuradas o la petición falla.
+ * @throws Error si las credenciales no están configuradas o la petición falla
  */
 const getPayPalBearerToken = async (): Promise<string> => {
 
@@ -197,7 +197,7 @@ export const paypalCheckPayment = async (paypalTransactionId: string) => {
         }
 
         // 4. Obtener el invoice_id (que es nuestro orderId de la BD)
-         
+
         const invoiceId = purchase_units?.[0]?.payments?.captures?.[0]?.invoice_id as string | undefined;
 
         if (!invoiceId) {
