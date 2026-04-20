@@ -13,7 +13,7 @@ export const authConfig = {
 
     callbacks: {
         jwt({ token, user }) {
-            console.log("auth.config jwt: ", { token, user })
+            // console.log("auth.config jwt: ", { token, user })
             if (user) {
                 token.data = { ...user, customProps: "puedo colcoar props en data" } as typeof token.data
                 token.customProps2 = "y puedo añadir mas props en el token"
@@ -23,14 +23,14 @@ export const authConfig = {
         session({ token, session }) {
             session.user = token.data as typeof session.user
             session.customProps2 = token.customProps2 as string
-            console.log("auth.config session:", { token, session })
+            // console.log("auth.config session:", { token, session })
             return session
         }
     },
     providers: [
         Credentials({
             async authorize(credentials) {
-                console.log("auth.config credentials: ", credentials)
+                // console.log("auth.config credentials: ", credentials)
                 try {
                     const parsedCredentials = z
                         .object({ email: z.string().email(), password: z.string().min(6) })
@@ -54,7 +54,7 @@ export const authConfig = {
 
                     //regresar el usuario sin el password
                     const { password: _, ...rest } = user
-                    console.log("authorize rest: ", rest)
+                    // console.log("authorize rest: ", rest)
                     //regresar el usuario
                     return rest
                 } catch (error) {

@@ -26,8 +26,10 @@ const PAYPAL_ORDERS_URL = `${PAYPAL_API}/v2/checkout/orders`;
  * PayPal usa client credentials grant (Basic Auth con client_id:secret)
  * para generar un access_token de corta duración.
  *
- * @returns El access token como string.
- * @throws Error si las credenciales no están configuradas o la petición falla
+ * @async
+ * @returns {Promise<string>} El access token como string.
+ * @throws {Error} Si las credenciales `NEXT_PUBLIC_PAYPAL_CLIENT_ID` o `PAYPAL_SECRET` no están configuradas.
+ * @throws {Error} Si la petición HTTP al endpoint OAuth2 de PayPal falla.
  */
 const getPayPalBearerToken = async (): Promise<string> => {
 
@@ -70,13 +72,16 @@ const getPayPalBearerToken = async (): Promise<string> => {
  * Crea una orden en PayPal con el monto total de una orden de la tienda.
  *
  * Flujo:
- *  1. Busca la orden en la base de datos por su ID
- *  2. Obtiene un access token de PayPal
- *  3. Crea la orden en la API de PayPal con el monto total
- *  4. Guarda el transactionId de PayPal en la orden de la BD
+ *  1. Busca la orden en la base de datos por su ID.
+ *  2. Obtiene un access token de PayPal.
+ *  3. Crea la orden en la API de PayPal con el monto total (intent: `CAPTURE`).
+ *  4. Guarda el `transactionId` de PayPal en la orden de la BD.
  *
- * @param orderId - El ID de la orden en nuestra base de datos.
- * @returns El ID de la orden creada en PayPal (transactionId).
+ * @async
+ * @param {string} orderId - El ID (UUID) de la orden en nuestra base de datos.
+ * @returns {Promise<{ ok: true; transactionId: string } | { ok: false; message: string }>}
+ *   - `ok: true` con el `transactionId` de PayPal si la orden se creó correctamente.
+ *   - `ok: false` con un `message` descriptivo si ocurrió un error.
  */
 export const createPayPalOrder = async (orderId: string) => {
     try {
@@ -149,65 +154,70 @@ export const createPayPalOrder = async (orderId: string) => {
 }
 
 
+
+
 // =============================================================================
-// Action: Verificar pago de PayPal
+// Action: Capturar orden de PayPal
 // =============================================================================
 
 /**
- * Verifica el pago de una transacción de PayPal y actualiza la orden en la BD.
+ * Captura (cobra) una orden de PayPal previamente aprobada por el usuario.
  *
  * Flujo:
- *  1. Obtiene un access token de PayPal
- *  2. Consulta la orden en PayPal por su transactionId
- *  3. Si el status es COMPLETED, actualiza la orden en la BD como pagada
+ *  1. Obtiene un access token de PayPal.
+ *  2. Envía la petición de captura (POST) a la API de PayPal.
+ *  3. Si el status es `COMPLETED`, extrae el `invoice_id` (nuestro `orderId`).
+ *  4. Actualiza la orden en la BD como pagada (`isPaid: true`, `paidAt: Date`).
+ *  5. Revalida la ruta `/orders/{orderId}` para reflejar el cambio en la UI.
  *
- * @param paypalTransactionId - El ID de la transacción/orden en PayPal.
- * @returns Resultado indicando si la verificación fue exitosa.
+ * @async
+ * @param {string} paypalOrderId - El ID de la orden en PayPal que fue aprobada por el usuario.
+ * @returns {Promise<{ ok: true; message: string } | { ok: false; message: string }>}
+ *   - `ok: true` si el pago fue capturado y la orden actualizada correctamente.
+ *   - `ok: false` con un `message` descriptivo si la captura falló o el status no es `COMPLETED`.
  */
-export const paypalCheckPayment = async (paypalTransactionId: string) => {
+export const capturePayPalOrder = async (paypalOrderId: string) => {
     try {
-        // 1. Obtener access token
         const accessToken = await getPayPalBearerToken();
 
-        // 2. Verificar el pago consultando la orden en PayPal
-        const response = await fetch(`${PAYPAL_ORDERS_URL}/${paypalTransactionId}`, {
-            method: "GET",
+        const response = await fetch(`${PAYPAL_ORDERS_URL}/${paypalOrderId}/capture`, {
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Authorization": `Bearer ${accessToken}`,
             },
             cache: "no-store",
         });
 
+        const paypalOrder = await response.json();
+
         if (!response.ok) {
+            console.error("PayPal capture order error:", paypalOrder);
             return {
                 ok: false,
-                message: "Error al verificar el pago en PayPal",
-            }
+                message: paypalOrder?.message || "Error al capturar la orden en PayPal",
+            };
         }
 
-        const paypalOrder = await response.json();
         const { status, purchase_units } = paypalOrder;
 
-        // 3. Si no está completado, el pago aún no se ha realizado
         if (status !== "COMPLETED") {
             return {
                 ok: false,
-                message: `La orden de PayPal aún no ha sido pagada. Status: ${status}`,
-            }
+                message: `La orden de PayPal no fue completada. Status: ${status}`,
+            };
         }
 
-        // 4. Obtener el invoice_id (que es nuestro orderId de la BD)
-
-        const invoiceId = purchase_units?.[0]?.payments?.captures?.[0]?.invoice_id as string | undefined;
+        const invoiceId =
+            purchase_units?.[0]?.payments?.captures?.[0]?.invoice_id as string | undefined;
 
         if (!invoiceId) {
             return {
                 ok: false,
-                message: "No se encontró el invoice_id en la respuesta de PayPal",
-            }
+                message: "No se encontró el invoice_id en la captura de PayPal",
+            };
         }
 
-        // 5. Actualizar la orden en nuestra base de datos
         await prisma.order.update({
             where: { id: invoiceId },
             data: {
@@ -216,18 +226,17 @@ export const paypalCheckPayment = async (paypalTransactionId: string) => {
             },
         });
 
-        // 6. Revalidar la página de la orden para que se refleje el cambio
         revalidatePath(`/orders/${invoiceId}`);
 
         return {
             ok: true,
-            message: "Pago verificado correctamente",
-        }
+            message: "Pago capturado y orden actualizada correctamente",
+        };
     } catch (error) {
-        console.error("Error checking PayPal payment:", error);
+        console.error("Error capturing PayPal payment:", error);
         return {
             ok: false,
-            message: `Error interno al verificar pago: ${error}`,
-        }
+            message: `Error interno al capturar pago: ${error}`,
+        };
     }
-}
+};

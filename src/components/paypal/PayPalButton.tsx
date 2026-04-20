@@ -1,5 +1,5 @@
 "use client"
-import { createPayPalOrder, paypalCheckPayment } from "@/actions";
+import { capturePayPalOrder, createPayPalOrder } from "@/actions";
 import {
     OnApproveDataOneTimePayments,
     OnCancelDataOneTimePayments,
@@ -7,6 +7,7 @@ import {
     OnErrorData,
     PayPalOneTimePaymentButton,
 } from "@paypal/react-paypal-js/sdk-v6";
+import { useRouter } from "next/navigation";
 
 interface Props {
     orderId: string;
@@ -27,6 +28,8 @@ interface Props {
  */
 export const PayPalButton = ({ orderId, isPaid }: Props) => {
 
+    const router = useRouter()
+
     if (isPaid) return null;
 
     /**
@@ -34,6 +37,7 @@ export const PayPalButton = ({ orderId, isPaid }: Props) => {
      * Crea la orden en PayPal con el monto correcto desde nuestra BD.
      */
     const createOrder = async (): Promise<{ orderId: string }> => {
+        console.log("Creando orden de PayPal para la orden:", orderId);
         const result = await createPayPalOrder(orderId);
 
         if (!result.ok || !result.transactionId) {
@@ -50,11 +54,15 @@ export const PayPalButton = ({ orderId, isPaid }: Props) => {
     const onApprove = async (data: OnApproveDataOneTimePayments) => {
         const { orderId: paypalOrderId } = data;
 
-        const result = await paypalCheckPayment(paypalOrderId);
-
+        const result = await capturePayPalOrder(paypalOrderId)
+        console.log(result)
         if (!result.ok) {
             console.error("Error al verificar pago:", result.message);
+            throw new Error(result.message ?? "No se pudo capturar el pago en Paypal")
         }
+
+        console.log("pago capturado correctamente: ", result.message)
+        router.refresh()
     }
 
 

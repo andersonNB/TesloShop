@@ -29,7 +29,7 @@ const OrderPage = async ({ params }: Props) => {
 					{/* Carrito */}
 					<div className="flex flex-col mt-5">
 
-						<div className={
+						{/* <div className={
 							clsx(
 								"flex items-center rounded-lg py-2 px-3.5 text-xs font-bold text-white mb-5",
 								{
@@ -40,7 +40,7 @@ const OrderPage = async ({ params }: Props) => {
 						}>
 							<IoCardOutline size={30} />
 							<span className="mx-2">{order?.isPaid ? "Pagada" : "Pendiente de pago"}</span>
-						</div>
+						</div> */}
 
 						{/* Items */}
 						{(items ?? [])?.map((product) => (
