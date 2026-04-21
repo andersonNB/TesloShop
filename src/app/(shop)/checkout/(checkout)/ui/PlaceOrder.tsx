@@ -26,7 +26,7 @@ export const PlaceOrder = () => {
     const router = useRouter()
 
     const cart = useCartStore(state => state.cart)
-    const clearCart = useCartStore(state => state.clearCart)
+
 
     const onPlaceOrder = async () => {
         setIsPlacingOrder(true)
@@ -46,7 +46,6 @@ export const PlaceOrder = () => {
         }
 
         //Si todo salio bien, limpiar el carrito
-        clearCart()
         router.replace(`/orders/${res.order?.id}`)
 
     }

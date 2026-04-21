@@ -1,5 +1,6 @@
 "use client"
 import { capturePayPalOrder, createPayPalOrder } from "@/actions";
+import { useCartStore } from "@/store";
 import {
     OnApproveDataOneTimePayments,
     OnCancelDataOneTimePayments,
@@ -29,6 +30,7 @@ interface Props {
 export const PayPalButton = ({ orderId, isPaid }: Props) => {
 
     const router = useRouter()
+    const clearCart = useCartStore(state => state.clearCart)
 
     if (isPaid) return null;
 
@@ -62,6 +64,7 @@ export const PayPalButton = ({ orderId, isPaid }: Props) => {
         }
 
         console.log("pago capturado correctamente: ", result.message)
+        clearCart()
         router.refresh()
     }
 

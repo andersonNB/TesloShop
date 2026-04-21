@@ -2,7 +2,7 @@
 import { QuantitySelector, SizeSelector } from '@/components'
 import { CartProduct, Product } from '@/interfaces'
 import { Sizes } from '@/seed/seed'
-import { useCartStore } from '@/utils'
+import { useCartStore } from '@/store'
 import { useState } from 'react'
 import { IoTrashOutline } from "react-icons/io5";
 
