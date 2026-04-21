@@ -14,6 +14,7 @@ import {
 	IoSearchOutline,
 	IoShirtOutline,
 	IoTicketOutline,
+	IoAddSharp
 } from "react-icons/io5";
 
 
@@ -86,6 +87,13 @@ export const Sidebar = () => {
 			text: "Ordenes",
 			icon: <IoTicketOutline size={30} />,
 			href: "/orders",
+			onClick: () => closeMenu(),
+			isVisible: isAuthenticated && isAdmin
+		},
+		{
+			text: "Todas las ordenes",
+			icon: <IoAddSharp size={30} />,
+			href: "/admin/orders",
 			onClick: () => closeMenu(),
 			isVisible: isAuthenticated && isAdmin
 		},
