@@ -18,7 +18,7 @@ export default async function OrdersPage() {
     }
 
 
-    //TODO: Implementar paginación con filtros
+    //TODO: Implementar paginación con filtros.
 
     return (
         <>
