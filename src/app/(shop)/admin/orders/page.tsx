@@ -27,7 +27,7 @@ export default async function OrdersPage() {
             <div className="mb-10">
                 <table className="min-w-full">
                     <thead className="bg-gray-200 border-b">
-                        <tr>
+                        <tr className='h-10'>
                             <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-0 text-left">
                                 #ID
                             </th>
@@ -64,7 +64,7 @@ export default async function OrdersPage() {
                                         })}>{order.isPaid ? "Pagada" : "Pendiente de pago"}</span>
 
                                     </td>
-                                    <td className="text-sm text-gray-900 font-light px-6 ">
+                                    <td className="py-3 text-sm text-gray-900 font-light px-6 ">
                                         <Link href={`/orders/${order.id}`} className="hover:underline">
                                             Ver orden
                                         </Link>

@@ -1,6 +1,7 @@
 "use server"
 
 import { auth } from "@/auth.config"
+import { Order } from "@/interfaces";
 import { prisma } from "@/lib/prisma"
 
 
@@ -35,7 +36,10 @@ import { prisma } from "@/lib/prisma"
  *   console.log(order.id, order.total, order.orderAddresses?.firstName);
  * });
  */
-export const getPaginatedOrders = async () => {
+
+interface Response { ok: boolean, orders?: Order[], message?: string }
+
+export const getPaginatedOrders = async (): Promise<Response> => {
 
     const session = await auth()
 
