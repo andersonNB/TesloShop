@@ -79,7 +79,7 @@ export const Sidebar = () => {
 		{
 			text: "Productos",
 			icon: <IoShirtOutline size={30} />,
-			href: "/products",
+			href: "/admin/products",
 			onClick: () => closeMenu(),
 			isVisible: isAuthenticated && isAdmin
 		},
