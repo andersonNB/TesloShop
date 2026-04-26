@@ -1,7 +1,7 @@
 "use server"
 
-import { auth } from "@/auth.config"
 import { prisma } from "@/lib/prisma"
+import { verifyAdminSession } from "../auth/verify-admin-session";
 
 interface PaginationOptions {
     page?: number;
@@ -57,14 +57,8 @@ export const getPaginatedUser = async ({ page = 1, take = 10 }: PaginationOption
     if (page < 1) page = 1;
     if (isNaN(Number(take))) take = 10;
 
-    const session = await auth()
-
-    if (session?.user.role !== "admin") {
-        return {
-            ok: false,
-            message: "No tiene permiso para ver los usuarios"
-        }
-    }
+    const adminCheck = await verifyAdminSession()
+    if (!adminCheck.ok) return adminCheck
 
     try {
 

@@ -1,8 +1,8 @@
 "use server"
 
-import { auth } from "@/auth.config"
 import { Order } from "@/interfaces";
 import { prisma } from "@/lib/prisma"
+import { verifyAdminSession } from "../auth/verify-admin-session"
 
 
 /**
@@ -41,14 +41,8 @@ interface Response { ok: boolean, orders?: Order[], message?: string }
 
 export const getPaginatedOrders = async (): Promise<Response> => {
 
-    const session = await auth()
-
-    if (session?.user.role !== "admin") {
-        return {
-            ok: false,
-            message: "No tiene permiso para ver la orden"
-        }
-    }
+    const adminCheck = await verifyAdminSession()
+    if (!adminCheck.ok) return adminCheck
 
     try {
 
