@@ -1,4 +1,4 @@
-import { getProductBySlug } from "@/actions"
+import { getAllCategories, getProductBySlug } from "@/actions"
 import { Title } from "@/components"
 import { redirect } from "next/navigation"
 import { ProductForm } from "../ui/ProductForm"
@@ -14,8 +14,10 @@ const ProductAdminPage = async ({ params }: Props) => {
 
     const { slug } = await params
 
-
-    const product = await getProductBySlug(slug) ?? null
+    const [product, categoriesResponse] = await Promise.all([
+        getProductBySlug(slug) ?? null,
+        getAllCategories()
+    ])
 
     if (!product) {
         redirect("/admin/products")
@@ -26,7 +28,7 @@ const ProductAdminPage = async ({ params }: Props) => {
     return (
         <>
             <Title title={title} />
-            <ProductForm product={product} />
+            <ProductForm product={product} categories={categoriesResponse.categories ?? []} />
         </>
     )
 }
