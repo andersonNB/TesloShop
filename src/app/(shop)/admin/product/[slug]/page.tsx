@@ -19,16 +19,16 @@ const ProductAdminPage = async ({ params }: Props) => {
         getAllCategories()
     ])
 
-    if (!product) {
+    if (!product && slug !== "new") {
         redirect("/admin/products")
     }
 
-    const title = (slug === "new") ? "Nuevo producto" : `Editar producto: ${product.title}`
+    const title = (slug === "new") ? "Nuevo producto" : `Editar producto: ${product?.title ?? ""}`
 
     return (
         <>
             <Title title={title} />
-            <ProductForm product={product} categories={categoriesResponse.categories ?? []} />
+            <ProductForm product={product ?? {}} categories={categoriesResponse.categories ?? []} />
         </>
     )
 }

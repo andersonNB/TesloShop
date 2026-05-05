@@ -1,6 +1,6 @@
 "use client";
 
-import { getProductBySlug } from "@/actions";
+import { createUpdateProduct, getProductBySlug } from "@/actions";
 import { CategorySelect } from "./CategorySelect";
 import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import { productFormSchema, ProductFormInput, ProductFormOutput } from "@/schema
 type ProductWithImages = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>
 
 interface Props {
-    product: ProductWithImages;
+    product: Partial<ProductWithImages>;
     categories: { id: string; name: string }[]
 }
 
@@ -19,7 +19,7 @@ const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export const ProductForm = ({ product, categories }: Props) => {
 
-    const { handleSubmit, register, control, formState, getValues, setValue, watch } = useForm<ProductFormInput, ProductFormOutput>({
+    const { handleSubmit, register, control, formState, getValues, setValue, watch } = useForm<ProductFormInput>({
         resolver: zodResolver(productFormSchema),
         defaultValues: {
             title: product.title,
@@ -28,16 +28,18 @@ export const ProductForm = ({ product, categories }: Props) => {
             price: product.price,
             inStock: product.inStock,
             sizes: product.sizes as string[],
-            tags: product.tags.join(", "),
-            gender: product.gender as ProductFormOutput["gender"],
+            tags: product.tags?.join(", ") ?? "",
+            gender: (product.gender ?? "men") as ProductFormOutput["gender"],
             categoryId: product.categoryId,
         }
     });
 
     const selectedSizes = watch("sizes") ?? []
+    console.log({ selectedSizes })
 
     const onSizeChanged = (size: string) => {
         const currentSizes = getValues("sizes")
+        console.log(currentSizes)
         if (currentSizes.includes(size)) {
             setValue("sizes", currentSizes.filter(s => s !== size), { shouldValidate: true })
         } else {
@@ -45,8 +47,29 @@ export const ProductForm = ({ product, categories }: Props) => {
         }
     }
 
-    const onSubmit: SubmitHandler<ProductFormInput> = (data) => {
-        console.log(data)
+    const onSubmit: SubmitHandler<ProductFormInput> = async (data) => {
+
+        const formData = new FormData()
+        const { ...productToSave } = data
+
+        console.log(productToSave)
+
+        formData.append("id", product.id ?? "")
+        formData.append("title", productToSave.title)
+        formData.append("slug", productToSave.slug)
+        formData.append("description", productToSave.description)
+        formData.append("price", String(productToSave.price))
+        formData.append("inStock", String(productToSave.inStock))
+        formData.append("sizes", productToSave.sizes.toString())
+        formData.append("tags", productToSave.tags)
+        formData.append("categoryId", productToSave.categoryId.toString())
+        formData.append("gender", productToSave.gender)
+
+        const result = await createUpdateProduct(formData)
+
+        if (!result?.ok) {
+            console.log(result?.errors)
+        }
     }
 
     return (
@@ -155,6 +178,7 @@ export const ProductForm = ({ product, categories }: Props) => {
 
                     <span>Tallas</span>
                     <div className="flex flex-wrap">
+                        {/* Verificar por que en el flujo de crear producto esto es undefined */}
                         {SIZES.map(size => (
                             <div
                                 key={size}
