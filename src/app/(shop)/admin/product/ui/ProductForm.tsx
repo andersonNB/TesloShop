@@ -39,11 +39,12 @@ export const ProductForm = ({ product, categories }: Props) => {
 
     const onSizeChanged = (size: string) => {
         const currentSizes = getValues("sizes")
-        console.log(currentSizes)
-        if (currentSizes.includes(size)) {
+        console.log({ currentSizes, size })
+        if (currentSizes && currentSizes.includes(size)) {
             setValue("sizes", currentSizes.filter(s => s !== size), { shouldValidate: true })
         } else {
-            setValue("sizes", [...currentSizes, size], { shouldValidate: true })
+            const updateSizes = currentSizes ? [...currentSizes, size] : [size]
+            setValue("sizes", updateSizes, { shouldValidate: true })
         }
     }
 
@@ -53,8 +54,9 @@ export const ProductForm = ({ product, categories }: Props) => {
         const { ...productToSave } = data
 
         console.log(productToSave)
-
-        formData.append("id", product.id ?? "")
+        if (product.id) {
+            formData.append("id", product.id ?? "")
+        }
         formData.append("title", productToSave.title)
         formData.append("slug", productToSave.slug)
         formData.append("description", productToSave.description)

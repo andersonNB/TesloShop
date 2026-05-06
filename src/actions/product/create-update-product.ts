@@ -64,12 +64,23 @@ export const createUpdateProduct = async (formData: FormData) => {
             console.log("product updated: ", product)
         } else {
             //crear
+            product = await tx.product.create({
+                data: {
+                    ...rest,
+                    sizes: {
+                        set: rest.sizes as Size[]
+                    },
+                    tags: {
+                        set: tagsArray
+                    }
+                }
+            })
         }
 
 
 
         return {
-            ok: true
+            product
         }
 
     })
