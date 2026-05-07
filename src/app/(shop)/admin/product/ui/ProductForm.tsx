@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { productFormSchema, ProductFormInput, ProductFormOutput } from "@/schema/productForm";
 import { ProductImage } from "@/components";
+import { useRouter } from "next/navigation";
 
 type ProductWithImages = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>
 
@@ -18,6 +19,8 @@ interface Props {
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export const ProductForm = ({ product, categories }: Props) => {
+
+    const router = useRouter()
 
     const { handleSubmit, register, control, formState, getValues, setValue, watch } = useForm<ProductFormInput>({
         resolver: zodResolver(productFormSchema),
@@ -72,6 +75,8 @@ export const ProductForm = ({ product, categories }: Props) => {
         if (!result?.ok) {
             console.log(result?.errors)
         }
+
+        router.replace(`/admin/product/${result?.product?.slug ?? ""}`)
     }
 
     return (
