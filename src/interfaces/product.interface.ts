@@ -1,7 +1,7 @@
 export interface Product {
 	id: string
 	description: string;
-	images: string[];
+	images: Partial<string[] | { url: string; id: number; }[]>;
 	inStock: number;
 	price: number;
 	sizes: ValidSizes[];

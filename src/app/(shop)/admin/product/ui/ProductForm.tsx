@@ -4,9 +4,9 @@ import { createUpdateProduct, getProductBySlug } from "@/actions";
 import { CategorySelect } from "./CategorySelect";
 import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import clsx from "clsx";
 import { productFormSchema, ProductFormInput, ProductFormOutput } from "@/schema/productForm";
+import { ProductImage } from "@/components";
 
 type ProductWithImages = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>
 
@@ -211,8 +211,8 @@ export const ProductForm = ({ product, categories }: Props) => {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {product.images?.map(image => (
                             <div key={image.id} className="flex flex-col">
-                                <Image
-                                    src={`/products/${image.url}`}
+                                <ProductImage
+                                    src={image.url}
                                     alt={product.title ?? ""}
                                     width={300}
                                     height={300}

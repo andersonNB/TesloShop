@@ -43,11 +43,11 @@ const ProductPage = async ({ params }: Props) => {
 			{/* Slideshow */}
 			<div className="col-span-1 md:col-span-2">
 				{/* Mobile Slideshow */}
-				<ProductMobileSlideShow title={product.title} images={product.images}
+				<ProductMobileSlideShow title={product.title} images={product.images.map(img => img.url)}
 					className="block md:hidden"
 				/>
 				{/* Desktop Slideshow */}
-				<ProductSlideshow title={product.title} images={product.images}
+				<ProductSlideshow title={product.title} images={product.images.map(img => img.url)}
 					className="hidden md:block"
 				/>
 			</div>
