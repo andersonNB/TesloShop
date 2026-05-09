@@ -87,7 +87,6 @@ export const createUpdateProduct = async (formData: FormData) => {
             }
 
         })
-
         revalidatePath("/admin/products")
         revalidatePath(`/admin/product/${product.slug}`)
         revalidatePath(`/products/${product.slug}`)
