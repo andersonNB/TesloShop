@@ -99,7 +99,7 @@ export const createUpdateProduct = async (formData: FormData) => {
         console.error(error)
         return {
             ok: false,
-            message: "No se puedo actualizar/crear el producto.",
+            message: "No se puedo actualizar/crear el producto",
             error
         }
     }
