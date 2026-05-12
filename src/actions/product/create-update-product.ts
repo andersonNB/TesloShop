@@ -3,8 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { Product, Size } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod"
+import { v2 as cloudinary } from "cloudinary"
 
 
+cloudinary.config(process.env.CLOUDINARY_URL ?? "");
 const productSchema = z.object({
 
     id: z.string().uuid().optional(),
@@ -18,7 +20,6 @@ const productSchema = z.object({
     tags: z.string(),
     gender: z.enum(["men", "women", "kid", "unisex"])
 })
-
 
 export const createUpdateProduct = async (formData: FormData) => {
 
@@ -83,7 +84,8 @@ export const createUpdateProduct = async (formData: FormData) => {
 
 
             if (formData.getAll("images")) {
-                console.log(formData.getAll("images"))
+                const images = await uploadImages(formData.getAll("images") as File[])
+                console.log("imagenes en cloudinary: ", images)
             }
 
             return {
@@ -107,4 +109,40 @@ export const createUpdateProduct = async (formData: FormData) => {
             error
         }
     }
+}
+
+
+/**
+ * Sube un arreglo de archivos de imagen a Cloudinary.
+ * Convierte cada archivo a formato Base64 antes de realizar la carga.
+ * 
+ * @param {File[]} file - Arreglo de archivos de imagen a subir.
+ * @returns {Promise<(string | null)[] | null>} Una promesa que resuelve en un arreglo de URLs seguras (strings) de las imágenes subidas. Retorna un arreglo que puede contener `null` si alguna imagen falla, o `null` si ocurre un error global.
+ */
+const uploadImages = async (file: File[]) => {
+    try {
+
+        const uploadPromises = file.map(async (image) => {
+
+
+            try {
+
+                const buffer = await image.arrayBuffer()
+                const base64Image = Buffer.from(buffer).toString("base64")
+                return (await cloudinary.uploader.upload(`data:${image.type};base64,${base64Image}`)).secure_url
+            } catch (error) {
+                console.error("Error: ", error)
+                return null
+            }
+
+        })
+
+        const results = await Promise.all(uploadPromises)
+        return results
+
+    } catch (error) {
+        console.error("Error al subir las imagenes: ", error)
+        return null
+    }
+
 }
