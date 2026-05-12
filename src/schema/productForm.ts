@@ -12,6 +12,7 @@ export const productFormSchema = z.object({
         message: "Debe seleccionar un género válido",
     }),
     categoryId: z.string().min(1, "Debe seleccionar una categoría"),
+    images: z.any().optional()
 });
 
 export type ProductFormInput = z.input<typeof productFormSchema>;

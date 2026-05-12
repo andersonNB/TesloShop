@@ -34,15 +34,14 @@ export const ProductForm = ({ product, categories }: Props) => {
             tags: product.tags?.join(", ") ?? "",
             gender: (product.gender ?? "men") as ProductFormOutput["gender"],
             categoryId: product.categoryId,
+            images: undefined
         }
     });
 
     const selectedSizes = watch("sizes") ?? []
-    console.log({ selectedSizes })
 
     const onSizeChanged = (size: string) => {
         const currentSizes = getValues("sizes")
-        console.log({ currentSizes, size })
         if (currentSizes && currentSizes.includes(size)) {
             setValue("sizes", currentSizes.filter(s => s !== size), { shouldValidate: true })
         } else {
@@ -54,12 +53,13 @@ export const ProductForm = ({ product, categories }: Props) => {
     const onSubmit: SubmitHandler<ProductFormInput> = async (data) => {
 
         const formData = new FormData()
-        const { ...productToSave } = data
+        const { images, ...productToSave } = data
 
         console.log(productToSave)
         if (product.id) {
             formData.append("id", product.id ?? "")
         }
+
         formData.append("title", productToSave.title)
         formData.append("slug", productToSave.slug)
         formData.append("description", productToSave.description)
@@ -69,6 +69,12 @@ export const ProductForm = ({ product, categories }: Props) => {
         formData.append("tags", productToSave.tags)
         formData.append("categoryId", productToSave.categoryId.toString())
         formData.append("gender", productToSave.gender)
+
+        if (images) {
+            for (let i = 0; i < images.length; i++) {
+                formData.append("images", images[i])
+            }
+        }
 
         const result = await createUpdateProduct(formData)
 
@@ -209,8 +215,10 @@ export const ProductForm = ({ product, categories }: Props) => {
                             type="file"
                             multiple
                             className="p-2 border rounded-md bg-gray-200"
-                            accept="image/png, image/jpeg"
+                            accept="image/png, image/jpeg, image/avif"
+                            {...register("images")}
                         />
+                        {formState.errors.images && <p className="text-red-500 text-sm">{formState.errors.images.message as string}</p>}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
