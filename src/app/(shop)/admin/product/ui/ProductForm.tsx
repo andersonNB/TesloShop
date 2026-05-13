@@ -20,6 +20,7 @@ const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export const ProductForm = ({ product, categories }: Props) => {
 
+    console.log({ product })
     const router = useRouter()
 
     const { handleSubmit, register, control, formState, getValues, setValue, watch } = useForm<ProductFormInput>({
@@ -240,7 +241,7 @@ export const ProductForm = ({ product, categories }: Props) => {
                                     className="btn-danger rounded-b-xl"
                                     onClick={() => deleteProductImage(image.id, image.url)}
                                 >
-                                    Eliminar
+                                    Eliminar.
                                 </button>
                             </div>
                         ))}
