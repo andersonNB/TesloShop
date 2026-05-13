@@ -85,7 +85,17 @@ export const createUpdateProduct = async (formData: FormData) => {
 
             if (formData.getAll("images")) {
                 const images = await uploadImages(formData.getAll("images") as File[])
-                console.log("imagenes en cloudinary: ", images)
+
+                if (!images) {
+                    throw new Error("No se pudo subir las imagenes")
+                }
+
+                await prisma.productImage.createMany({
+                    data: images.map(img => ({
+                        url: img!,
+                        productId: product.id
+                    }))
+                })
             }
 
             return {

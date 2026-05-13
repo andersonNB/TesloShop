@@ -1,6 +1,6 @@
 "use client";
 
-import { createUpdateProduct, getProductBySlug } from "@/actions";
+import { createUpdateProduct, deleteProductImage, getProductBySlug } from "@/actions";
 import { CategorySelect } from "./CategorySelect";
 import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -170,10 +170,14 @@ export const ProductForm = ({ product, categories }: Props) => {
 
                 <button
                     type="submit"
-                    className="btn-primary w-full"
+                    className={
+                        clsx("btn-primary w-full", {
+                            "btn-disabled cursor-not-allowed": formState.isSubmitting
+                        })
+                    }
                     disabled={formState.isSubmitting}
                 >
-                    Guardar
+                    {formState.isSubmitting ? "Guardando..." : "Guardar"}
                 </button>
             </div>
 
@@ -227,14 +231,14 @@ export const ProductForm = ({ product, categories }: Props) => {
                                 <ProductImage
                                     src={image.url}
                                     alt={product.title ?? ""}
-                                    width={300}
-                                    height={300}
+                                    width={500}
+                                    height={500}
                                     className="rounded-t shadow-md"
                                 />
                                 <button
                                     type="button"
                                     className="btn-danger rounded-b-xl"
-                                    onClick={() => console.log(image.id, image.url)}
+                                    onClick={() => deleteProductImage(image.id, image.url)}
                                 >
                                     Eliminar
                                 </button>
