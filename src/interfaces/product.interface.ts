@@ -1,7 +1,7 @@
 export interface Product {
 	id: string
 	description: string;
-	images: Partial<string[] | { url: string; id: number; }[]>;
+	images: Images;
 	inStock: number;
 	price: number;
 	sizes: ValidSizes[];
@@ -11,6 +11,8 @@ export interface Product {
 	// type: ValidTypes; llega el categoriId y la interface pide es los ValidTypes
 	gender: "men" | "women" | "kid" | "unisex";
 }
+
+export type Images = Partial<string[] | { url: string; id: number; }[]>
 
 export interface CartProduct {
 	id: string

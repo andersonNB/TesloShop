@@ -1,5 +1,4 @@
 'use server'
-
 import { prisma } from "@/lib/prisma";
 import { Category } from "@/seed/seed";
 
@@ -61,9 +60,9 @@ export const getPaginatedProductsWithImages = async ({ page = 1, take = 12, gend
             ok: true,
             currentPage: page,
             totalPages,
-            products: products.map(product => ({
+            products: products.map((product) => ({
                 ...product,
-                images: product.images.map(image => image.url)
+                images: product.images?.map(image => typeof image === 'string' ? image : image?.url) ?? []
             }))
         }
 

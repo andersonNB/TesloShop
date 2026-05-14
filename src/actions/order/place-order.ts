@@ -3,6 +3,7 @@
 import { auth } from "@/auth.config";
 import { Address, ValidSizes } from "@/interfaces";
 import { prisma } from "@/lib/prisma";
+import { Product } from "@prisma/client";
 
 interface ProductToOrder {
     productId: string;
@@ -27,7 +28,7 @@ export const placeOrder = async (productIds: ProductToOrder[], address: Address)
 
     // Obtener la información de los productos
     // Nota: recuerden que podemos llevar +2 productos con el mismo id
-    const products = await prisma.product.findMany({
+    const products: Product[] = await prisma.product.findMany({
         where: {
             id: {
                 in: productIds.map(p => p.productId)
@@ -41,7 +42,7 @@ export const placeOrder = async (productIds: ProductToOrder[], address: Address)
 
     // Los totales de tax, subtotal y total
     const { subTotal, tax, total } = productIds.reduce((totals, item) => {
-        const product = products.find(p => p.id === item.productId)
+        const product = products.find((p: Product) => p.id === item.productId)
 
         if (!product) throw new Error(`Producto no encontrado : ${item.productId}`);
 

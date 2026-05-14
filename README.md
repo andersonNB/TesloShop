@@ -11,3 +11,12 @@
 7. Correr la app `npm run dev`
 
 ## Correr en prod
+
+### Vercel + Prisma Postgres
+
+- Desplegar el frontend en Vercel
+- Crear una base en Prisma Postgres desde el Marketplace de Vercel
+- Configurar en Vercel estas variables:
+  - `DATABASE_URL`: URL `prisma://...` para runtime
+  - `DIRECT_DATABASE_URL`: URL `postgresql://...` para migraciones
+- Ejecutar las migraciones contra `DIRECT_DATABASE_URL`

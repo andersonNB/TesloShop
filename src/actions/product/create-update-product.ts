@@ -1,9 +1,10 @@
 "use server"
 import { prisma } from "@/lib/prisma";
-import { Product, Size } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod"
 import { v2 as cloudinary } from "cloudinary"
+import { ValidSizes } from "@/interfaces";
+import { Product } from "@prisma/client";
 
 
 cloudinary.config(process.env.CLOUDINARY_URL ?? "");
@@ -24,10 +25,7 @@ const productSchema = z.object({
 export const createUpdateProduct = async (formData: FormData) => {
 
     const data = Object.fromEntries(formData);
-    console.log("data: ", data)
-
     const productParsed = productSchema.safeParse(data)
-    console.log("productParsed: ", productParsed)
 
     if (!productParsed.success) {
         return {
@@ -41,7 +39,6 @@ export const createUpdateProduct = async (formData: FormData) => {
     const { id, ...rest } = product
 
     try {
-
         const prismaTx = await prisma.$transaction(async (tx) => {
 
 
@@ -57,7 +54,7 @@ export const createUpdateProduct = async (formData: FormData) => {
                     data: {
                         ...rest,
                         sizes: {
-                            set: rest.sizes as Size[]
+                            set: rest.sizes as ValidSizes[]
                         },
                         tags: {
                             set: tagsArray
@@ -72,7 +69,7 @@ export const createUpdateProduct = async (formData: FormData) => {
                     data: {
                         ...rest,
                         sizes: {
-                            set: rest.sizes as Size[]
+                            set: rest.sizes as ValidSizes[]
                         },
                         tags: {
                             set: tagsArray

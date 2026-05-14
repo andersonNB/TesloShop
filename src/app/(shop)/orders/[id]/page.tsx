@@ -46,7 +46,7 @@ const OrderPage = async ({ params }: Props) => {
 						{(items ?? [])?.map((product) => (
 							<div key={product.product.slug} className="flex mb-5 ">
 								<Image
-									src={`/products/${product.product.images[0].url}`}
+									src={`/products/${typeof product.product.images[0] === 'string' ? product.product.images[0] : product.product.images[0]?.url}`}
 									width={100}
 									height={100}
 									alt={product.product.title ?? ""}
